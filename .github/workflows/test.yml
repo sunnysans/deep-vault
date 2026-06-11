@@ -1,0 +1,55 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  validate:
+    name: Build, Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Project Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Validate Version Sync
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          MAN=$(node -p "require('./manifest.json').version")
+          if [ "$PKG" != "$MAN" ]; then
+            echo "❌ Version mismatch: package.json=$PKG, manifest.json=$MAN"
+            exit 1
+          fi
+          echo "✅ Versions in sync: $PKG"
+
+      - name: Security Check — No console.log or eval() in src/
+        run: |
+          if grep -rn "console\.log" src/ --include="*.ts"; then
+            echo "❌ console.log found in src/ — remove before merging"
+            exit 1
+          fi
+          if grep -rn "eval(" src/ --include="*.ts"; then
+            echo "❌ eval() found in src/ — banned by Obsidian security policy"
+            exit 1
+          fi
+          echo "✅ Security check passed"
+
+      - name: Validate TypeScript Compilation
+        run: npm run build
+
+      - name: Execute Automated Unit Tests
+        run: npm run test
+        env:
+          CI: true

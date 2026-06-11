@@ -1,11 +1,14 @@
 {
   "name": "deep-vault",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "description": "AI-powered research assistant for Obsidian using Claude",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "node scripts/deploy.js"
   },
   "keywords": [
     "obsidian",
@@ -16,6 +19,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^16.11.6",
+    "vitest": "^1.6.0",
     "builtin-modules": "^3.3.0",
     "esbuild": "0.17.3",
     "obsidian": "^1.12.3",
