@@ -1170,23 +1170,19 @@ ${content}
   // ─── API Calls ────────────────────────────────────────────────────────────
 
   private getCurrentNote(): { content: string; title: string } | null {
-    // First try the active view — works when a note is focused directly
+    // Try the active MarkdownView first (works when a note is directly focused)
     const active = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (active) return { content: active.editor.getValue(), title: active.file?.basename ?? "Untitled" };
+    if (active?.file) return { content: active.editor.getValue(), title: active.file.basename };
 
-    // Deep Vault panel is focused so the active view is not a MarkdownView.
-    // Fall back to the first open markdown leaf that has a file loaded.
-    let fallback: MarkdownView | null = null;
-    this.app.workspace.iterateAllLeaves(leaf => {
-      if (!fallback && leaf.view instanceof MarkdownView && leaf.view.file) {
-        fallback = leaf.view;
-      }
-    });
-    if (!fallback) return null;
-    return {
-      content: (fallback as MarkdownView).editor.getValue(),
-      title: (fallback as MarkdownView).file?.basename ?? "Untitled",
-    };
+    // Deep Vault panel is focused so getActiveViewOfType returns null.
+    // getLeavesOfType uses the view-type string — reliable across bundled environments
+    // unlike instanceof which can fail when class references differ between bundles.
+    const leaves = this.app.workspace.getLeavesOfType("markdown");
+    for (const leaf of leaves) {
+      const view = leaf.view as MarkdownView;
+      if (view.file) return { content: view.editor.getValue(), title: view.file.basename };
+    }
+    return null;
   }
 
   private setStatus(msg: string) {
