@@ -38,7 +38,8 @@ Read and apply every rule here before making any change to the project.
 
 | Invariant | Rule |
 |---|---|
-| **Version sync** | `package.json` `"version"` must equal `manifest.json` `"version"` — always |
+| **Version sync** | `package.json` `"version"` must equal `manifest.json` `"version"` — always. Update both files in the same commit, never separately. |
+| **Versioning convention** | Follow `MAJOR.MINOR.PATCH` strictly: bump `PATCH` for every bug fix (`4.0.x`), bump `MINOR` for every new feature (`4.x.0`), bump `MAJOR` for breaking changes (`x.0.0`). Every merged fix or feature must have its own version — never batch unrelated changes under one version number. |
 | **No secrets in code** | API keys, tokens, passwords must never appear in any source file or `.env` |
 | **No secrets in git history** | Run `git log --all` before any push to a public remote; one leaked key invalidates the release |
 | **No `console.log` in production** | Remove all debug statements from `src/` before committing to `main` |
@@ -119,6 +120,19 @@ main     ← stable releases only — tagged, GitHub release published
 - `dev` → `main` merge requires: all of the above + Tier 3 regression matrix signed off.
 - **Every merge to `main` must be followed by a GitHub Release** tagged with the exact version in `manifest.json`, with `main.js`, `manifest.json`, and `styles.css` attached as release assets. A `main` commit without a release tag is incomplete.
 - Commit message format: `type: short description` where type is `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`.
+
+### Version Bump Rules — apply before merging to dev
+
+| Change type | Version bump | Branch prefix | Commit prefix | Example |
+|---|---|---|---|---|
+| Bug fix | `PATCH` — `4.0.x` | `fix/` | `fix:` | `4.0.0` → `4.0.1` |
+| New feature | `MINOR` — `4.x.0` | `feature/` | `feat:` | `4.0.3` → `4.1.0` |
+| Breaking change | `MAJOR` — `x.0.0` | `feature/` | `feat!:` | `4.1.0` → `5.0.0` |
+
+**When to bump:**
+- Every `fix/` branch that merges to `dev` → bump `PATCH` in `manifest.json` + `package.json` in that same commit.
+- Every `feature/` branch that merges to `dev` → bump `MINOR`, reset `PATCH` to `0`.
+- Never batch multiple fixes under one version — each fix gets its own `4.0.x` bump so history is traceable.
 
 ---
 

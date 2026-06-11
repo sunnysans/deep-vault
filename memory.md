@@ -83,7 +83,7 @@ git push
 
 ---
 
-## 📦 Current Version: 4.0.0
+## 📦 Current Version: 4.0.3
 
 ### Canonical Build & Deploy Commands (cross-platform)
 ```
@@ -125,6 +125,10 @@ chmod +x build.sh          # first time only
 | v3.1.0 | Setup wizard + 14 keyboard commands | ✅ Done |
 | v3.1.1 | Mobile support + touch swipe | ✅ Done |
 | v3.1.2 | README polish + PUBLISHING.md guide | ✅ Done |
+| v4.0.0 | CI/CD overhaul — Vitest, GitHub Actions, deploy script, src/utils split | ✅ Done |
+| v4.0.1 | Fix "Please open a note first" — `getLeavesOfType("markdown")` lookup | ✅ Done |
+| v4.0.2 | Fix "Failed to fetch" — `requestUrl()` replaces `fetch()` | ✅ Done |
+| v4.0.3 | Fix Daily Digest overlap — removed `flex:1` from `.dv-response-wrap` | ✅ Done |
 
 ---
 
@@ -135,7 +139,7 @@ Summary of top priorities:
 
 | Priority | Item |
 |---|---|
-| 🔴 P0 | GitHub Release v4.0.0 — push tag `v4.0.0`, release workflow auto-publishes |
+| 🔴 P0 | GitHub Release v4.0.3 — push tag `v4.0.3`, release workflow auto-publishes |
 | 🔴 P0 | Execute manual regression TC-01 → TC-09 |
 | 🔴 P0 | Test on Linux, Mobile, empty vault, no API key |
 | 🟠 P1 | Screenshots + demo GIF |
