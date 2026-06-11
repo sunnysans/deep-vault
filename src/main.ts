@@ -11,6 +11,7 @@ import {
   WorkspaceLeaf,
   TFile,
   SuggestModal,
+  requestUrl,
 } from "obsidian";
 import { formatTime, formatDate, slugify } from "./utils/helpers";
 
@@ -1597,7 +1598,10 @@ ${result}
       body.tools = [{ type: "web_search_20250305", name: "web_search" }];
     }
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    // requestUrl is Obsidian's built-in HTTP client — works on desktop and mobile.
+    // Native fetch() fails in Obsidian's Electron/Capacitor environment.
+    const response = await requestUrl({
+      url: "https://api.anthropic.com/v1/messages",
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1606,14 +1610,15 @@ ${result}
         "anthropic-beta": "web-search-2025-03-05",
       },
       body: JSON.stringify(body),
+      throw: false,
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message ?? `API error ${response.status}`);
+    if (response.status !== 200) {
+      const err = response.json;
+      throw new Error(err?.error?.message ?? `API error ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = response.json;
     return data.content
       .filter((b: any) => b.type === "text")
       .map((b: any) => b.text)
