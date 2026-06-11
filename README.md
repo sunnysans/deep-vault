@@ -2,7 +2,7 @@
 
 **AI-powered research assistant for Obsidian, powered by Claude**
 
-[![Version](https://img.shields.io/badge/version-4.0.0-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![Version](https://img.shields.io/badge/version-4.0.3-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
 [![CI](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml/badge.svg)](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml)
 [![Obsidian](https://img.shields.io/badge/Obsidian-0.15%2B-purple)](https://obsidian.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -215,6 +215,15 @@ deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin fo
 ---
 
 ## 📋 Changelog
+
+### v4.0.3
+- 🐛 Fixed response area overlapping Daily Digest section — removed greedy `flex:1` from response wrapper
+
+### v4.0.2
+- 🐛 Fixed "Failed to fetch" on all API calls — replaced native `fetch()` with Obsidian's `requestUrl()` which works correctly in Electron and on mobile
+
+### v4.0.1
+- 🐛 Fixed "Please open a note first" error when note is open but Deep Vault panel is focused — switched from `instanceof` class check to `getLeavesOfType("markdown")` string-based lookup
 
 ### v4.0.0
 - 🏗 Complete build infrastructure overhaul — cross-platform from day one
