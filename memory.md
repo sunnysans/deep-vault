@@ -192,6 +192,7 @@ Summary of top priorities:
 | `NextSteps.md` | Phased testing implementation plan — Vitest → CI → Playwright |
 | `build.md` | Internal build architecture, pipeline, and testing tier specs |
 | `TESTING.md` | Full QA protocol — Vitest setup, GitHub Actions YAML, regression matrix |
+| `TestRun.md` | **Fill this in during testing** — detailed steps, pass/fail, notes for each of the 14 test cases |
 | `PUBLISHING.md` | Step-by-step Obsidian community submission guide |
 | `README.md` | Public-facing documentation |
 
