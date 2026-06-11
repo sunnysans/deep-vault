@@ -1170,9 +1170,23 @@ ${content}
   // ─── API Calls ────────────────────────────────────────────────────────────
 
   private getCurrentNote(): { content: string; title: string } | null {
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (!view) return null;
-    return { content: view.editor.getValue(), title: view.file?.basename ?? "Untitled" };
+    // First try the active view — works when a note is focused directly
+    const active = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (active) return { content: active.editor.getValue(), title: active.file?.basename ?? "Untitled" };
+
+    // Deep Vault panel is focused so the active view is not a MarkdownView.
+    // Fall back to the first open markdown leaf that has a file loaded.
+    let fallback: MarkdownView | null = null;
+    this.app.workspace.iterateAllLeaves(leaf => {
+      if (!fallback && leaf.view instanceof MarkdownView && leaf.view.file) {
+        fallback = leaf.view;
+      }
+    });
+    if (!fallback) return null;
+    return {
+      content: (fallback as MarkdownView).editor.getValue(),
+      title: (fallback as MarkdownView).file?.basename ?? "Untitled",
+    };
   }
 
   private setStatus(msg: string) {
