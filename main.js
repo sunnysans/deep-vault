@@ -1021,6 +1021,18 @@ ${content}
     }
     return null;
   }
+  getCurrentFile() {
+    const active = this.app.workspace.getActiveViewOfType(import_obsidian.MarkdownView);
+    if (active == null ? void 0 : active.file)
+      return active.file;
+    const leaves = this.app.workspace.getLeavesOfType("markdown");
+    for (const leaf of leaves) {
+      const view = leaf.view;
+      if (view.file)
+        return view.file;
+    }
+    return null;
+  }
   setStatus(msg) {
     this.statusEl.empty();
     if (msg)
@@ -1214,12 +1226,11 @@ ${note.content.slice(0, 2e3)}`;
       new import_obsidian.Notice("No tags selected.");
       return;
     }
-    const view = this.app.workspace.getActiveViewOfType(import_obsidian.MarkdownView);
-    if (!view || !view.file) {
+    const file = this.getCurrentFile();
+    if (!file) {
       new import_obsidian.Notice("Could not find the active note.");
       return;
     }
-    const file = view.file;
     let content = await this.app.vault.read(file);
     const hasFrontmatter = content.startsWith("---");
     if (hasFrontmatter) {
