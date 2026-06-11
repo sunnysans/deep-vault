@@ -179,7 +179,7 @@ class NoteSuggestModal extends SuggestModal<TFile> {
     el.createEl("small", { text: file.path, cls: "dv-modal-path" });
   }
 
-  onChooseSuggestion(file: TFile) {
+  onChooseSuggestion(file: TFile, _evt?: MouseEvent | KeyboardEvent) {
     if (!this.selected.includes(file)) {
       this.selected.push(file);
       new Notice(`Added: ${file.basename} (${this.selected.length} selected)`);

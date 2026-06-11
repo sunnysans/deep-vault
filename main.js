@@ -184,7 +184,7 @@ var NoteSuggestModal = class extends import_obsidian.SuggestModal {
     });
     el.createEl("small", { text: file.path, cls: "dv-modal-path" });
   }
-  onChooseSuggestion(file) {
+  onChooseSuggestion(file, _evt) {
     if (!this.selected.includes(file)) {
       this.selected.push(file);
       new import_obsidian.Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
@@ -192,9 +192,11 @@ var NoteSuggestModal = class extends import_obsidian.SuggestModal {
       this.selected = this.selected.filter((f) => f !== file);
       new import_obsidian.Notice(`Removed: ${file.basename}`);
     }
-    if (this.selected.length > 0) {
-      this.onSelect(this.selected);
-    }
+    this.onSelect(this.selected);
+  }
+  selectSuggestion(value, evt) {
+    this.onChooseSuggestion(value, evt);
+    this.inputEl.dispatchEvent(new Event("input"));
   }
 };
 var DeepVaultView = class extends import_obsidian.ItemView {
