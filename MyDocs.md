@@ -107,6 +107,7 @@ These were discovered during development and will silently break the build if ig
 | TS error on comment lines | A comment like `// - a` on its own line is parsed as code | Keep comments on a single line, never `// - text` alone |
 | `Cannot find module 'obsidian'` | Package not installed | `npm install --save-dev obsidian` |
 | esbuild fails with `moduleResolution` error | `tsconfig.json` set to `"bundler"` | Must use `"moduleResolution": "node"` |
+| `npm audit` reports 4 vulnerabilities | `esbuild@0.17.3` dev-server CVE (GHSA-67mh-4wv8-2f99) chains into vitest's vite/vite-node. Zero risk — we never run an esbuild HTTP server. Fix is `esbuild@0.28.0` (breaking); tracked as TD-08 in `MyNextSteps.md`. |
 
 ---
 

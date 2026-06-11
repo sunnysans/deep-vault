@@ -95,6 +95,7 @@ Tracked here for visibility. No fixed release target.
 | TD-05 | `docs/screenshots/` directory doesn't exist | README has placeholder text instead of real screenshots | `[ ]` |
 | TD-06 | No `vitest.config.ts` | Obsidian mock alias must live in `package.json` — hard to scale | `[x]` |
 | TD-07 | Web search beta header may expire | `anthropic-beta: web-search-2025-03-05` — check when Anthropic promotes to stable | `[ ]` |
+| TD-08 | esbuild dev-server vulnerability (GHSA-67mh-4wv8-2f99) | Chain: `esbuild@0.17.3` → `vite` → `vite-node` → `vitest`. Attack vector is esbuild HTTP dev server — **not applicable** to this project (we use file watcher only). Fix requires `esbuild@0.28.0` (breaking change). Address in a dedicated PR with full build test. | `[ ]` |
 
 ---
 
