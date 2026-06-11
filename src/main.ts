@@ -1186,6 +1186,20 @@ ${content}
     return null;
   }
 
+  private getCurrentFile(): TFile | null {
+    // Same fallback as getCurrentNote — getActiveViewOfType returns null
+    // whenever the Deep Vault panel itself is focused.
+    const active = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (active?.file) return active.file;
+
+    const leaves = this.app.workspace.getLeavesOfType("markdown");
+    for (const leaf of leaves) {
+      const view = leaf.view as MarkdownView;
+      if (view.file) return view.file;
+    }
+    return null;
+  }
+
   private setStatus(msg: string) {
     this.statusEl.empty();
     if (msg) this.statusEl.createEl("span", { text: msg, cls: "dv-status-text" });
@@ -1374,10 +1388,9 @@ ${note.content.slice(0, 2000)}`;
   private async applyTagsToNote(tags: string[], note: { content: string; title: string }) {
     if (tags.length === 0) { new Notice("No tags selected."); return; }
 
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (!view || !view.file) { new Notice("Could not find the active note."); return; }
+    const file = this.getCurrentFile();
+    if (!file) { new Notice("Could not find the active note."); return; }
 
-    const file = view.file;
     let content = await this.app.vault.read(file);
 
     // Check if frontmatter exists

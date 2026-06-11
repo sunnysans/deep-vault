@@ -2,7 +2,7 @@
 
 **AI-powered research assistant for Obsidian, powered by Claude**
 
-[![Version](https://img.shields.io/badge/version-4.0.3-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![Version](https://img.shields.io/badge/version-4.0.4-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
 [![CI](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml/badge.svg)](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml)
 [![Obsidian](https://img.shields.io/badge/Obsidian-0.15%2B-purple)](https://obsidian.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -215,6 +215,9 @@ deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin fo
 ---
 
 ## 📋 Changelog
+
+### v4.0.4
+- 🐛 Fixed "Could not find the active note" error when applying Auto-Tag suggestions while the Deep Vault panel is focused — `applyTagsToNote` now uses the same `getLeavesOfType("markdown")` fallback as note detection elsewhere
 
 ### v4.0.3
 - 🐛 Fixed response area overlapping Daily Digest section — removed greedy `flex:1` from response wrapper
