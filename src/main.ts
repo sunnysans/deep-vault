@@ -179,7 +179,7 @@ class NoteSuggestModal extends SuggestModal<TFile> {
     el.createEl("small", { text: file.path, cls: "dv-modal-path" });
   }
 
-  onChooseSuggestion(file: TFile) {
+  onChooseSuggestion(file: TFile, _evt?: MouseEvent | KeyboardEvent) {
     if (!this.selected.includes(file)) {
       this.selected.push(file);
       new Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
@@ -187,9 +187,15 @@ class NoteSuggestModal extends SuggestModal<TFile> {
       this.selected = this.selected.filter(f => f !== file);
       new Notice(`Removed: ${file.basename}`);
     }
-    if (this.selected.length > 0) {
-      this.onSelect(this.selected);
-    }
+    this.onSelect(this.selected);
+  }
+
+  selectSuggestion(value: TFile, evt: MouseEvent | KeyboardEvent) {
+    // Default SuggestModal behaviour closes the modal after one pick.
+    // Re-trigger the suggester instead so users can keep selecting notes,
+    // and only close on Escape.
+    this.onChooseSuggestion(value, evt);
+    this.inputEl.dispatchEvent(new Event("input"));
   }
 }
 
