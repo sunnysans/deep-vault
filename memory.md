@@ -21,7 +21,7 @@ Claude will read this file and `CLAUDE.md` first, then pick up exactly where we 
 ### What is partially done — needs local run to confirm
 | Item | What's needed |
 |---|---|
-| Vitest unit tests (Phase 1) | All files written. Run `npm install && npm run test` locally to confirm 16 tests pass. |
+| Vitest unit tests (Phase 1) | All files written. **14/14 tests confirmed passing locally.** ✅ |
 
 ### Immediate next actions (in order)
 1. **Run `npm install && npm run test`** locally — confirm 16 Vitest tests pass green
@@ -185,7 +185,7 @@ Summary of top priorities:
 | `scripts/deploy.js` | Cross-platform deploy — canonical deploy logic (all platforms) |
 | `deploy.bat` | Windows convenience wrapper — calls scripts/deploy.js |
 | `build.sh` | Linux/macOS convenience wrapper — build + optional deploy |
-| `test/helpers.test.ts` | Vitest unit tests for src/utils/helpers.ts (16 test cases) |
+| `test/helpers.test.ts` | Vitest unit tests for src/utils/helpers.ts (14 test cases) |
 | `test/__mocks__/obsidian.ts` | Obsidian API stubs for Vitest |
 | `MyDocs.md` | Living developer reference — invariants, gotchas, build pipeline |
 | `MyNextSteps.md` | **Master backlog** — P0 blockers, P1–P3 features, tech debt, completed log |
@@ -212,14 +212,14 @@ Summary of top priorities:
 | Create `MyNextSteps.md` — master prioritised backlog | ✅ Done |
 | Extract `src/utils/helpers.ts` from `src/main.ts` | ✅ Done |
 | Create `test/__mocks__/obsidian.ts` | ✅ Done |
-| Create `test/helpers.test.ts` (16 test cases) | ✅ Done |
+| Create `test/helpers.test.ts` (14 test cases) | ✅ Done |
 | Add Vitest alias config to `package.json` | ✅ Done |
 | Create `scripts/deploy.js` — cross-platform Node.js deploy | ✅ Done |
 | Add `npm run deploy` to `package.json` | ✅ Done |
 | Refactor `build.sh` to delegate deploy to `scripts/deploy.js` | ✅ Done |
 | Refactor `deploy.bat` to delegate to `scripts/deploy.js` | ✅ Done |
 | Create `CLAUDE.md` — session-start best practices + Release Gate | ✅ Done |
-| Run `npm install && npm run test` to confirm 16 tests pass | ⏳ Needs local run |
+| Run `npm install && npm run test` to confirm 14 tests pass | ✅ Done — 14/14 green |
 
 ---
 

@@ -218,7 +218,7 @@ deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin fo
 
 ### v4.0.0
 - 🏗 Complete build infrastructure overhaul — cross-platform from day one
-- ✅ Vitest unit test suite — 16 tests covering all pure helpers
+- ✅ Vitest unit test suite — 14 tests covering all pure helpers
 - 🤖 GitHub Actions CI — auto-runs build validation, version check, security scan, and unit tests on every push and PR
 - 🚀 Automated GitHub Releases — tag `v4.x.x` and release assets are published automatically
 - 🛡 Security checks in CI — blocks `console.log` and `eval()` from reaching `main`

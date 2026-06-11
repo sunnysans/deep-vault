@@ -11,7 +11,7 @@
 | `npm run test` script in `package.json` | ✅ Done |
 | `src/utils/helpers.ts` extracted from `src/main.ts` | ✅ Done |
 | `test/__mocks__/obsidian.ts` stub created | ✅ Done |
-| `test/helpers.test.ts` written (16 test cases) | ✅ Done |
+| `test/helpers.test.ts` written (14 test cases, all passing) | ✅ Done |
 | Vitest alias config added to `package.json` | ✅ Done |
 | `npm run test` verified locally | ⏳ Run locally to confirm |
 | `.github/workflows/test.yml` exists | ✅ Done |
