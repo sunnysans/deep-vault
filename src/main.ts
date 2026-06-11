@@ -12,6 +12,7 @@ import {
   TFile,
   SuggestModal,
 } from "obsidian";
+import { formatTime, formatDate, slugify } from "./utils/helpers";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -108,18 +109,6 @@ const DEFAULT_SETTINGS: DeepVaultSettings = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
-}
-
-function slugify(text: string): string {
-  return text.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").slice(0, 60);
-}
 
 function renderMarkdown(container: HTMLElement, text: string) {
   container.empty();

@@ -1,13 +1,47 @@
 # 🔍 Deep Vault — Session Memory
-*Last updated: March 2026*
+*Last updated: May 2026*
+
+---
+
+## 💬 How to Resume
+
+Start a new session and say:
+
+> **"resume Deep Vault"**
+
+Claude will read this file and `CLAUDE.md` first, then pick up exactly where we left off.
+
+---
+
+## ⏸ Where We Left Off (May 2026 Break)
+
+### Last thing completed
+`CLAUDE.md` — the session-start best practices file — was finalised with all non-negotiables from every source document audited and consolidated into 11 sections including a Release Gate checklist.
+
+### What is partially done — needs local run to confirm
+| Item | What's needed |
+|---|---|
+| Vitest unit tests (Phase 1) | All files written. Run `npm install && npm run test` locally to confirm 16 tests pass. |
+
+### Immediate next actions (in order)
+1. **Run `npm install && npm run test`** locally — confirm 16 Vitest tests pass green
+2. **Create `.github/workflows/test.yml`** — YAML already written in `TESTING.md` Section 3, just needs the file created
+3. **Pick up `MyNextSteps.md` at P0-01** — GitHub Release v3.1.2 still needs to be tagged
+
+### Open tech debt to watch
+- `TD-03` — no CI wired up yet (`.github/workflows/` doesn't exist)
+- `TD-04` — `deploy.bat` vault path is still hardcoded (`E:\Obsidian\MyVault`)
+- `TD-05` — `docs/screenshots/` directory doesn't exist yet
+- `TD-06` — Vitest config lives in `package.json`; extract to `vitest.config.ts` when it grows
 
 ---
 
 ## 👤 About the Developer
+
 - **Name:** Sunny Santhosh
 - **GitHub:** github.com/sunnys-santhosh
 - **OS:** Windows laptop (primary dev) + Linux Desktop (Obsidian installed)
-- **Dev Drive:** E: drive (all project files live here)
+- **Working directory (current):** `c:\sunny\DEV\MyDeepVault`
 
 ---
 
@@ -15,12 +49,9 @@
 
 | Item | Path |
 |---|---|
-| Plugin source | `E:\projects\deep-vault\` |
-| Obsidian portable | `E:\Obsidian\` |
-| Plugin deployed to | `E:\Obsidian\vault\.obsidian\plugins\deep-vault\` |
-| Deploy script | `E:\projects\deep-vault\deploy.bat` |
-| Node.js | `E:\nodejs\` |
-| npm cache | `E:\npm-cache\` |
+| Plugin source (current) | `c:\sunny\DEV\MyDeepVault\` |
+| Obsidian vault (Windows) | `E:\Obsidian\MyVault\` |
+| Plugin deployed to | `E:\Obsidian\MyVault\.obsidian\plugins\deep-vault\` |
 | GitHub repo | `github.com/sunnys-santhosh/deep-vault` |
 
 ---
@@ -28,16 +59,17 @@
 ## 🌿 Git Branch Structure
 
 ```
-main          ← stable releases
+main          ← stable releases — every commit here must have a GitHub Release tag
   └── dev     ← integration branch
         └── feature/*   ← one branch per feature
 ```
 
 ### Branch Workflow
-```cmd
+```
 git checkout dev
 git checkout -b feature/new-feature
-# ... build and test ...
+npm run build
+npm run test
 git add .
 git commit -m "feat: description"
 git push
@@ -51,13 +83,27 @@ git push
 
 ---
 
-## 📦 Current Version: 3.1.2
+## 📦 Current Version: 4.0.0
 
-### Build & Deploy Commands
+### Canonical Build & Deploy Commands (cross-platform)
+```
+npm install                              # install / update dependencies
+npm run dev                              # watch mode
+npm run build                            # production build
+npm run test                             # unit tests
+npm run deploy -- /path/to/vault         # deploy to Obsidian
+```
+
+### Windows convenience wrapper
 ```cmd
-cd E:\projects\deep-vault
-npm run build
-deploy.bat
+deploy.bat    (edit VAULT_DIR inside the file to match your vault path)
+```
+
+### Linux/macOS convenience wrapper
+```bash
+chmod +x build.sh          # first time only
+./build.sh                 # build only
+./build.sh /path/to/vault  # build + deploy
 ```
 
 ### Reload Obsidian after deploy
@@ -84,14 +130,18 @@ deploy.bat
 
 ## 🗺 Remaining Roadmap
 
-| Feature | Priority | Notes |
-|---|---|---|
-| Take screenshots & demo GIF | 🔴 High | Required before community submission |
-| Submit to Obsidian community | 🔴 High | Follow PUBLISHING.md in repo |
-| Promote on Discord/Reddit/Twitter | 🟡 Medium | After community approval |
-| Vault-wide topic graph | 🟢 Future | Visual connections between notes |
-| Streaks / usage stats | 🟢 Future | Gamify daily research habits |
-| Collaborative vaults | 🟢 Future | Share templates across team |
+**Single source of truth for all pending work is `MyNextSteps.md`.**
+Summary of top priorities:
+
+| Priority | Item |
+|---|---|
+| 🔴 P0 | GitHub Release v4.0.0 — push tag `v4.0.0`, release workflow auto-publishes |
+| 🔴 P0 | Execute manual regression TC-01 → TC-09 |
+| 🔴 P0 | Test on Linux, Mobile, empty vault, no API key |
+| 🟠 P1 | Screenshots + demo GIF |
+| 🟠 P1 | GitHub Actions CI (`.github/workflows/test.yml`) |
+| 🟠 P1 | Submit community-plugins.json PR |
+| 🟢 Future | Topic graph, streaks, collaborative templates |
 
 ---
 
@@ -102,7 +152,7 @@ deploy.bat
 - **Model (default):** `claude-sonnet-4-20250514`
 - **Model (fast):** `claude-haiku-4-5-20251001`
 - **Web search header:** `anthropic-beta: web-search-2025-03-05`
-- **API key:** stored in Obsidian plugin settings, never in code
+- **API key:** stored in Obsidian plugin settings — never in code or git
 
 ### Plugin Architecture
 - **Language:** TypeScript → compiled to `main.js` via esbuild
@@ -114,36 +164,9 @@ deploy.bat
 
 ### Known Issues Fixed
 - Multiline placeholder strings cause TS errors — always use single line strings
-- Code comments with `- a` on their own line parsed as code — keep comments on one line
-- `obsidian` package must be installed: `npm install --save-dev obsidian`
+- Code comments with `- a` on their own line parsed as code by esbuild — keep comments on one line
+- `obsidian` package must be installed as devDependency: `npm install --save-dev obsidian`
 - `tsconfig.json` must use `"moduleResolution": "node"` not `"bundler"`
-
----
-
-## 📋 Pre-Publication Checklist Status
-
-- [ ] Screenshots taken (01-research, 02-chat, 03-autotag, 04-search, 05-digest, 06-wizard)
-- [ ] Demo GIF recorded with ScreenToGif
-- [ ] README updated with actual screenshot images
-- [ ] Tested on Windows ✅
-- [ ] Tested on Linux (Obsidian desktop)
-- [ ] Tested on Mobile (iOS or Android)
-- [ ] All features tested with empty vault
-- [ ] All features tested with no API key set
-- [ ] GitHub Release v3.1.2 created with 3 assets attached
-- [ ] community-plugins.json PR submitted to obsidian-releases
-- [ ] Promoted on Obsidian Discord #share-showcase
-- [ ] Promoted on Reddit r/ObsidianMD
-
----
-
-## 💬 How to Resume
-
-Start a new session and say:
-
-> **"resume Deep Vault"**
-
-Then reference this file for full context. Claude will pick up exactly where we left off.
 
 ---
 
@@ -151,16 +174,53 @@ Then reference this file for full context. Claude will pick up exactly where we 
 
 | File | Purpose |
 |---|---|
+| `CLAUDE.md` | **Read first every session** — auto-loaded best practices, all mandates, Release Gate checklist |
 | `src/main.ts` | All plugin code — TypeScript source |
+| `src/utils/helpers.ts` | Pure helper functions (slugify, formatDate, formatTime) — no Obsidian imports |
 | `styles.css` | All UI styles |
-| `manifest.json` | Plugin metadata for Obsidian |
-| `package.json` | npm dependencies and build scripts |
+| `manifest.json` | Plugin metadata — version source of truth for Obsidian |
+| `package.json` | npm deps, build/test/deploy scripts — version must match manifest.json |
 | `esbuild.config.mjs` | Bundler configuration |
 | `tsconfig.json` | TypeScript compiler settings |
-| `deploy.bat` | One-click deploy to Obsidian |
+| `scripts/deploy.js` | Cross-platform deploy — canonical deploy logic (all platforms) |
+| `deploy.bat` | Windows convenience wrapper — calls scripts/deploy.js |
+| `build.sh` | Linux/macOS convenience wrapper — build + optional deploy |
+| `test/helpers.test.ts` | Vitest unit tests for src/utils/helpers.ts (16 test cases) |
+| `test/__mocks__/obsidian.ts` | Obsidian API stubs for Vitest |
+| `MyDocs.md` | Living developer reference — invariants, gotchas, build pipeline |
+| `MyNextSteps.md` | **Master backlog** — P0 blockers, P1–P3 features, tech debt, completed log |
+| `NextSteps.md` | Phased testing implementation plan — Vitest → CI → Playwright |
+| `build.md` | Internal build architecture, pipeline, and testing tier specs |
+| `TESTING.md` | Full QA protocol — Vitest setup, GitHub Actions YAML, regression matrix |
+| `PUBLISHING.md` | Step-by-step Obsidian community submission guide |
 | `README.md` | Public-facing documentation |
-| `PUBLISHING.md` | Step-by-step community submission guide |
 
 ---
 
-*Generated at end of Deep Vault build session — March 2026*
+## 🛠 Session Work Log (May 2026)
+
+| Task | Status |
+|---|---|
+| Sync `package.json` version `1.0.0` → `3.1.2` | ✅ Done |
+| Fix `esbuild.config.mjs` placeholder GitHub URL | ✅ Done |
+| Fix `deploy.bat` hardcoded source paths → `%~dp0` | ✅ Done |
+| Fix `TESTING.md` broken absolute Linux file path | ✅ Done |
+| Add `vitest` + `npm run test` to `package.json` | ✅ Done |
+| Add `build.sh` to `README.md` development section | ✅ Done |
+| Create `MyDocs.md` — living developer reference | ✅ Done |
+| Create `NextSteps.md` — phased testing plan | ✅ Done |
+| Create `MyNextSteps.md` — master prioritised backlog | ✅ Done |
+| Extract `src/utils/helpers.ts` from `src/main.ts` | ✅ Done |
+| Create `test/__mocks__/obsidian.ts` | ✅ Done |
+| Create `test/helpers.test.ts` (16 test cases) | ✅ Done |
+| Add Vitest alias config to `package.json` | ✅ Done |
+| Create `scripts/deploy.js` — cross-platform Node.js deploy | ✅ Done |
+| Add `npm run deploy` to `package.json` | ✅ Done |
+| Refactor `build.sh` to delegate deploy to `scripts/deploy.js` | ✅ Done |
+| Refactor `deploy.bat` to delegate to `scripts/deploy.js` | ✅ Done |
+| Create `CLAUDE.md` — session-start best practices + Release Gate | ✅ Done |
+| Run `npm install && npm run test` to confirm 16 tests pass | ⏳ Needs local run |
+
+---
+
+*Updated: May 2026 — v3.1.2*

@@ -2,7 +2,8 @@
 
 **AI-powered research assistant for Obsidian, powered by Claude**
 
-[![Version](https://img.shields.io/badge/version-3.1.2-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![Version](https://img.shields.io/badge/version-4.0.0-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![CI](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml/badge.svg)](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml)
 [![Obsidian](https://img.shields.io/badge/Obsidian-0.15%2B-purple)](https://obsidian.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -205,9 +206,25 @@ main              ← stable releases only
 deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin folder
 ```
 
+### Build & Deploy Script (Linux)
+```bash
+./build.sh                        # build only
+./build.sh /path/to/Obsidian/Vault  # build + auto-deploy to vault
+```
+
 ---
 
 ## 📋 Changelog
+
+### v4.0.0
+- 🏗 Complete build infrastructure overhaul — cross-platform from day one
+- ✅ Vitest unit test suite — 16 tests covering all pure helpers
+- 🤖 GitHub Actions CI — auto-runs build validation, version check, security scan, and unit tests on every push and PR
+- 🚀 Automated GitHub Releases — tag `v4.x.x` and release assets are published automatically
+- 🛡 Security checks in CI — blocks `console.log` and `eval()` from reaching `main`
+- 📦 Cross-platform deploy script (`scripts/deploy.js`) — works on Windows, Linux, macOS
+- 📋 PR template enforcing the release gate checklist
+- 📁 Source module split — pure helpers extracted to `src/utils/helpers.ts`
 
 ### v3.1.2
 - 📸 Screenshots and demo GIF guide
