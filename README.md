@@ -2,7 +2,7 @@
 
 **AI-powered research assistant for Obsidian, powered by Claude**
 
-[![Version](https://img.shields.io/badge/version-4.2.0-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![Version](https://img.shields.io/badge/version-4.2.1-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
 [![CI](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml/badge.svg)](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml)
 [![Obsidian](https://img.shields.io/badge/Obsidian-0.15%2B-purple)](https://obsidian.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -215,6 +215,9 @@ deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin fo
 ---
 
 ## 📋 Changelog
+
+### v4.2.1
+- 🔧 Tech debt: split the 2,200+ line `src/main.ts` monolith into focused modules — `src/api/claude.ts`, `src/types.ts`, `src/modals.ts`, `src/settings.ts`, and `src/views/DeepVaultView.ts`. `src/main.ts` is now a thin plugin class (~120 lines) handling lifecycle and command registration only. No behavior change.
 
 ### v4.2.0
 - ⌨️ The Keyboard Shortcuts list in the More tab now shows the hotkey actually assigned to each command (via Obsidian's hotkey manager), or "Not set" if none is configured
