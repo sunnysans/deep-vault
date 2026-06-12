@@ -1544,6 +1544,20 @@
   font-family: monospace;
 }
 
+.dv-hotkey-key {
+  font-size: 10.5px;
+  padding: 5px 4px;
+  color: var(--text-muted);
+  font-family: monospace;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.dv-hotkey-key-unset {
+  font-style: italic;
+  opacity: 0.6;
+}
+
 .dv-hotkey-wizard-btn {
   width: 100%;
   margin-top: 8px;

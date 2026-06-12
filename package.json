@@ -1,6 +1,6 @@
 {
   "name": "deep-vault",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "AI-powered research assistant for Obsidian using Claude",
   "main": "main.js",
   "scripts": {
