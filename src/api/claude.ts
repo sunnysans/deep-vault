@@ -39,7 +39,6 @@ export async function callClaude(
       "Content-Type": "application/json",
       "x-api-key": settings.apiKey,
       "anthropic-version": "2023-06-01",
-      "anthropic-beta": "web-search-2025-03-05",
     },
     body: JSON.stringify(body),
     throw: false,
