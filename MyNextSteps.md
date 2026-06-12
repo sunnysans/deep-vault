@@ -86,16 +86,30 @@ Tracked here for visibility. No fixed release target.
 
 ## 🔧 Tech Debt
 
+**Priority order (set 2026-06-12):** TD-01 → TD-04 → TD-08 → TD-07. TD-05 deferred — it's really a P1 community-submission item, bundle it with P1-01–04.
+
 | # | Item | Risk if ignored | Done |
 |---|---|---|:---:|
-| TD-01 | All logic lives in single `src/main.ts` | Difficult to unit-test; grows into unmaintainable monolith | `[~]` helpers extracted to `src/utils/helpers.ts` |
+| TD-01 | All logic lives in single `src/main.ts` (2,205 lines and growing every release) | Difficult to unit-test; grows into unmaintainable monolith | `[~]` see sub-tasks below |
 | TD-02 | No Obsidian mock — `test/` dir doesn't exist | `npm run test` fails with no helpful output | `[x]` |
 | TD-03 | No `.github/workflows/` — CI not wired up | Broken builds can merge to `main` undetected | `[x]` |
 | TD-04 | `deploy.bat` vault path is hardcoded | Script breaks if Obsidian vault moves; must be manually edited | `[ ]` |
-| TD-05 | `docs/screenshots/` directory doesn't exist | README has placeholder text instead of real screenshots | `[ ]` |
+| TD-05 | `docs/screenshots/` directory doesn't exist | README has placeholder text instead of real screenshots — deferred, bundle with P1-01–04 | `[ ]` |
 | TD-06 | No `vitest.config.ts` | Obsidian mock alias must live in `package.json` — hard to scale | `[x]` |
 | TD-07 | Web search beta header may expire | `anthropic-beta: web-search-2025-03-05` — check when Anthropic promotes to stable | `[ ]` |
 | TD-08 | esbuild dev-server vulnerability (GHSA-67mh-4wv8-2f99) | Chain: `esbuild@0.17.3` → `vite` → `vite-node` → `vitest`. Attack vector is esbuild HTTP dev server — **not applicable** to this project (we use file watcher only). Fix requires `esbuild@0.28.0` (breaking change). Address in a dedicated PR with full build test. | `[ ]` |
+
+### TD-01 sub-tasks — modularize `src/main.ts`
+
+Each step is its own `refactor/*` branch, pure refactor (no behavior change), `npm run build && npm run test` must pass before merging `--no-ff` into `dev`. No per-step version bump — one PATCH bump at the end of the whole effort.
+
+| # | Step | Extract to | Done |
+|---|---|---|:---:|
+| TD-01a | Claude API client (`callClaude` + request/response handling) | `src/api/claude.ts` | `[~]` in progress |
+| TD-01b | Modal classes (`SetupWizardModal`, `NoteSuggestModal`, etc.) | `src/modals.ts` | `[ ]` |
+| TD-01c | Settings tab + settings interface/defaults | `src/settings.ts` | `[ ]` |
+| TD-01d | `ItemView` panels/renderers (largest piece — do last) | `src/views/DeepVaultView.ts` | `[ ]` |
+| TD-01e | `src/main.ts` left as thin `Plugin` class (lifecycle + command registration) | — | `[ ]` |
 
 ---
 
