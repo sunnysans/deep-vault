@@ -107,7 +107,7 @@ Each step is its own `refactor/*` branch, pure refactor (no behavior change), `n
 |---|---|---|:---:|
 | TD-01a | Claude API client (`callClaude` + request/response handling) | `src/api/claude.ts` | `[x]` |
 | TD-01b | Modal classes (`SetupWizardModal`, `NoteSuggestModal`, `TemplateEditorModal`) + shared types/constants | `src/modals.ts`, `src/types.ts` | `[x]` |
-| TD-01c | Settings tab + settings interface/defaults | `src/settings.ts` | `[ ]` |
+| TD-01c | Settings tab + settings interface/defaults | `src/settings.ts` | `[x]` |
 | TD-01d | `ItemView` panels/renderers (largest piece — do last) | `src/views/DeepVaultView.ts` | `[ ]` |
 | TD-01e | `src/main.ts` left as thin `Plugin` class (lifecycle + command registration) | — | `[ ]` |
 
