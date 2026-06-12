@@ -45,7 +45,7 @@ The Obsidian team will reject the PR without these. Complete after P0.
 | P1-04 | Update README with actual screenshots | Replace placeholder screenshot guide text with `![…](docs/screenshots/…)` links | `[ ]` |
 | P1-05 | Implement Vitest unit tests (Phase 1) | Extract helpers, create `test/`, write `helpers.test.ts` — see `NextSteps.md` Phase 1 | `[x]` |
 | P1-06 | Create GitHub Actions CI workflow | `.github/workflows/test.yml` — spec in `TESTING.md` Section 3 | `[x]` |
-| P1-07 | Add CI badge to README | After first green run on `dev` branch | `[ ]` |
+| P1-07 | Add CI badge to README | After first green run on `dev` branch | `[x]` |
 | P1-08 | Audit for `console.log` in production code | Remove all debug statements from `src/main.ts` | `[ ]` |
 | P1-09 | Verify plugin loads/unloads cleanly | Toggle enable → disable → enable in Obsidian Settings, no errors | `[ ]` |
 | P1-10 | Submit `community-plugins.json` PR | Fork `obsidian-releases`, add entry, open PR — see `PUBLISHING.md` | `[ ]` |
@@ -62,7 +62,7 @@ The Obsidian team will reject the PR without these. Complete after P0.
 | P2-04 | Promote on Twitter/X | Marketing | Short video demo, tag `@obsdmd` | `[ ]` |
 | P2-05 | Test on Mac | QA | Ask a friend — verify no macOS-specific rendering issues | `[ ]` |
 | P2-06 | Test with 100+ note vault | QA | Verify search and digest performance at scale | `[ ]` |
-| P2-07 | Extract `src/utils/helpers.ts` module | Refactor | Prerequisite for broader unit test coverage — see `NextSteps.md` Phase 1 Step 1.1 | `[ ]` |
+| P2-07 | Extract `src/utils/helpers.ts` module | Refactor | Prerequisite for broader unit test coverage — see `NextSteps.md` Phase 1 Step 1.1 | `[x]` |
 | P2-08 | Add GitHub Issue templates | Infra | `bug_report.md` and `feature_request.md` under `.github/ISSUE_TEMPLATE/` | `[ ]` |
 | P2-09 | Update model list for new Anthropic releases | Maintenance | Check `docs.anthropic.com` changelog; update model dropdown in settings tab | `[ ]` |
 
@@ -90,7 +90,7 @@ Tracked here for visibility. No fixed release target.
 |---|---|---|:---:|
 | TD-01 | All logic lives in single `src/main.ts` | Difficult to unit-test; grows into unmaintainable monolith | `[~]` helpers extracted to `src/utils/helpers.ts` |
 | TD-02 | No Obsidian mock — `test/` dir doesn't exist | `npm run test` fails with no helpful output | `[x]` |
-| TD-03 | No `.github/workflows/` — CI not wired up | Broken builds can merge to `main` undetected | `[ ]` |
+| TD-03 | No `.github/workflows/` — CI not wired up | Broken builds can merge to `main` undetected | `[x]` |
 | TD-04 | `deploy.bat` vault path is hardcoded | Script breaks if Obsidian vault moves; must be manually edited | `[ ]` |
 | TD-05 | `docs/screenshots/` directory doesn't exist | README has placeholder text instead of real screenshots | `[ ]` |
 | TD-06 | No `vitest.config.ts` | Obsidian mock alias must live in `package.json` — hard to scale | `[x]` |
@@ -139,5 +139,5 @@ Move items here when done. Keep for audit trail.
 
 ---
 
-*Last updated: May 2026 — v3.1.2*
+*Last updated: 2026-06-12 — v4.0.5*
 *Related files: `NextSteps.md` (testing plan) · `TESTING.md` (QA protocol) · `PUBLISHING.md` (submission guide) · `MyDocs.md` (dev reference)*
