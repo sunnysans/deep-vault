@@ -28,7 +28,7 @@ __export(main_exports, {
   default: () => DeepVaultPlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian2 = require("obsidian");
+var import_obsidian3 = require("obsidian");
 
 // src/utils/helpers.ts
 function formatTime(date) {
@@ -72,7 +72,7 @@ async function callClaude(settings, messages, useWeb) {
   return data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n") || "No response received.";
 }
 
-// src/main.ts
+// src/types.ts
 var DEEP_VAULT_VIEW = "deep-vault-view";
 var DEFAULT_MODEL = "claude-sonnet-4-20250514";
 var DEFAULT_TEMPLATES = [
@@ -134,6 +134,318 @@ var DEFAULT_SETTINGS = {
   templates: DEFAULT_TEMPLATES,
   hasSeenWizard: false
 };
+
+// src/modals.ts
+var import_obsidian2 = require("obsidian");
+var NoteSuggestModal = class extends import_obsidian2.SuggestModal {
+  constructor(app, files, onSelect) {
+    super(app);
+    this.selected = [];
+    this.files = files;
+    this.onSelect = onSelect;
+    this.setPlaceholder("Search and select notes to synthesize (Enter to add, Esc when done)...");
+  }
+  getSuggestions(query) {
+    return this.files.filter(
+      (f) => f.basename.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 20);
+  }
+  renderSuggestion(file, el) {
+    const isSelected = this.selected.includes(file);
+    el.createEl("div", {
+      text: `${isSelected ? "\u2705 " : ""}${file.basename}`,
+      cls: isSelected ? "dv-modal-selected" : ""
+    });
+    el.createEl("small", { text: file.path, cls: "dv-modal-path" });
+  }
+  onChooseSuggestion(file, _evt) {
+    if (!this.selected.includes(file)) {
+      this.selected.push(file);
+      new import_obsidian2.Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
+    } else {
+      this.selected = this.selected.filter((f) => f !== file);
+      new import_obsidian2.Notice(`Removed: ${file.basename}`);
+    }
+    this.onSelect(this.selected);
+  }
+  selectSuggestion(value, evt) {
+    this.onChooseSuggestion(value, evt);
+    this.inputEl.dispatchEvent(new Event("input"));
+  }
+};
+var TemplateEditorModal = class extends import_obsidian2.Modal {
+  constructor(app, existing, onSave) {
+    super(app);
+    this.existing = existing;
+    this.onSave = onSave;
+  }
+  onOpen() {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass("dv-modal");
+    contentEl.createEl("h2", { text: this.existing ? "\u270F\uFE0F Edit Template" : "\u{1F4DD} New Template", cls: "dv-modal-title" });
+    contentEl.createEl("label", { text: "Template Name", cls: "dv-modal-label" });
+    const nameInput = contentEl.createEl("input", {
+      cls: "dv-modal-input",
+      attr: { type: "text", placeholder: "e.g. Meeting Summary", value: (_b = (_a = this.existing) == null ? void 0 : _a.name) != null ? _b : "" }
+    });
+    contentEl.createEl("label", { text: "Icon (emoji)", cls: "dv-modal-label" });
+    const iconInput = contentEl.createEl("input", {
+      cls: "dv-modal-input dv-modal-input-sm",
+      attr: { type: "text", placeholder: "\u{1F4DD}", value: (_d = (_c = this.existing) == null ? void 0 : _c.icon) != null ? _d : "\u{1F4DD}" }
+    });
+    contentEl.createEl("label", { text: "Prompt", cls: "dv-modal-label" });
+    contentEl.createEl("p", { text: "Write your prompt. Claude will receive this, optionally followed by your note content.", cls: "dv-modal-hint" });
+    const promptInput = contentEl.createEl("textarea", {
+      cls: "dv-modal-textarea",
+      attr: { placeholder: "e.g. Summarise this note as a bullet list suitable for a team standup..." }
+    });
+    promptInput.value = (_f = (_e = this.existing) == null ? void 0 : _e.prompt) != null ? _f : "";
+    const toggleRow = contentEl.createDiv("dv-modal-toggle-row");
+    toggleRow.createEl("label", { text: "Include current note as context", cls: "dv-modal-toggle-label" });
+    const toggleInput = toggleRow.createEl("input", {
+      attr: { type: "checkbox" }
+    });
+    toggleInput.checked = (_h = (_g = this.existing) == null ? void 0 : _g.useNoteContext) != null ? _h : true;
+    contentEl.createEl("p", { text: "Quick insert:", cls: "dv-modal-label" });
+    const varRow = contentEl.createDiv("dv-modal-var-row");
+    const vars = [
+      { label: "{{note_title}}", desc: "Note title" },
+      { label: "{{date}}", desc: "Today's date" }
+    ];
+    for (const v of vars) {
+      const chip = varRow.createEl("button", { text: v.label, cls: "dv-var-chip", attr: { title: v.desc } });
+      chip.onclick = () => {
+        var _a2;
+        const pos = (_a2 = promptInput.selectionStart) != null ? _a2 : promptInput.value.length;
+        promptInput.value = promptInput.value.slice(0, pos) + v.label + promptInput.value.slice(pos);
+        promptInput.focus();
+      };
+    }
+    const btnRow = contentEl.createDiv("dv-modal-btn-row");
+    const cancelBtn = btnRow.createEl("button", { text: "Cancel", cls: "dv-btn-ghost" });
+    cancelBtn.onclick = () => this.close();
+    const saveBtn = btnRow.createEl("button", { text: this.existing ? "Save Changes" : "Create Template", cls: "dv-btn-primary" });
+    saveBtn.onclick = () => {
+      var _a2, _b2, _c2, _d2;
+      const name = nameInput.value.trim();
+      const prompt = promptInput.value.trim();
+      if (!name) {
+        new import_obsidian2.Notice("Please enter a template name.");
+        return;
+      }
+      if (!prompt) {
+        new import_obsidian2.Notice("Please enter a prompt.");
+        return;
+      }
+      const tpl = {
+        id: (_b2 = (_a2 = this.existing) == null ? void 0 : _a2.id) != null ? _b2 : `tpl-${Date.now()}`,
+        name,
+        icon: iconInput.value.trim() || "\u{1F4DD}",
+        prompt,
+        useNoteContext: toggleInput.checked,
+        createdAt: (_d2 = (_c2 = this.existing) == null ? void 0 : _c2.createdAt) != null ? _d2 : new Date().toISOString()
+      };
+      this.onSave(tpl);
+      this.close();
+    };
+  }
+  onClose() {
+    this.contentEl.empty();
+  }
+};
+var SetupWizardModal = class extends import_obsidian2.Modal {
+  constructor(app, plugin) {
+    super(app);
+    this.step = 0;
+    this.steps = [
+      {
+        title: "\u{1F44B} Welcome to Deep Vault",
+        icon: "\u{1F50D}",
+        content: (el, plugin, next, _close) => {
+          el.createEl("p", { text: "Deep Vault is your AI-powered research assistant inside Obsidian, powered by Anthropic's Claude.", cls: "dv-wizard-text" });
+          el.createEl("p", { text: "This quick setup takes less than 2 minutes.", cls: "dv-wizard-text" });
+          const features = [
+            "\u{1F52C} Research tab \u2014 6 smart quick actions on any note",
+            "\u{1F4AC} Chat \u2014 multi-turn conversation with your vault",
+            "\u{1F517} Synthesis \u2014 combine and compare multiple notes",
+            "\u{1F4DD} Templates \u2014 save and reuse custom prompts",
+            "\u{1F50D} Search \u2014 natural language search across all notes",
+            "\u{1F4F0} Daily Digest \u2014 summarise recent work automatically"
+          ];
+          const list = el.createEl("ul", { cls: "dv-wizard-list" });
+          features.forEach((f) => list.createEl("li", { text: f }));
+          el.createEl("button", { text: "Get Started \u2192", cls: "dv-btn-primary dv-wizard-btn" }).onclick = next;
+        }
+      },
+      {
+        title: "\u{1F511} Connect to Claude",
+        icon: "\u{1F511}",
+        content: (el, plugin, next, _close) => {
+          el.createEl("p", { text: "Deep Vault needs an Anthropic API key to power Claude.", cls: "dv-wizard-text" });
+          const steps = el.createEl("ol", { cls: "dv-wizard-steps" });
+          steps.createEl("li", { text: "Go to console.anthropic.com and sign up" });
+          steps.createEl("li", { text: "Navigate to API Keys \u2192 Create Key" });
+          steps.createEl("li", { text: "Copy the key (starts with sk-ant-...)" });
+          steps.createEl("li", { text: "Paste it below" });
+          el.createEl("label", { text: "Your API Key", cls: "dv-modal-label" });
+          const keyInput = el.createEl("input", {
+            cls: "dv-modal-input",
+            attr: { type: "password", placeholder: "sk-ant-..." }
+          });
+          keyInput.value = plugin.settings.apiKey;
+          el.createEl("p", { text: "\u{1F512} Your key is stored locally in Obsidian and never sent anywhere except Anthropic.", cls: "dv-wizard-hint" });
+          const btn = el.createEl("button", { text: "Save & Continue \u2192", cls: "dv-btn-primary dv-wizard-btn" });
+          btn.onclick = async () => {
+            const key = keyInput.value.trim();
+            if (!key.startsWith("sk-ant-") && key.length > 0) {
+              new import_obsidian2.Notice("That doesn't look like a valid Anthropic API key.");
+              return;
+            }
+            plugin.settings.apiKey = key;
+            await plugin.saveSettings();
+            next();
+          };
+          const skipBtn = el.createEl("button", { text: "Skip for now", cls: "dv-btn-ghost dv-wizard-skip" });
+          skipBtn.onclick = next;
+        }
+      },
+      {
+        title: "\u{1F916} Choose Your Model",
+        icon: "\u{1F916}",
+        content: (el, plugin, next, _close) => {
+          el.createEl("p", { text: "Which Claude model would you like to use?", cls: "dv-wizard-text" });
+          const models = [
+            {
+              id: "claude-sonnet-4-20250514",
+              name: "Claude Sonnet 4",
+              badge: "\u2B50 Recommended",
+              desc: "Best balance of intelligence and speed. Ideal for deep research, synthesis and complex analysis.",
+              badgeCls: "dv-wizard-badge-recommended"
+            },
+            {
+              id: "claude-haiku-4-5-20251001",
+              name: "Claude Haiku 4.5",
+              badge: "\u26A1 Fastest",
+              desc: "Quicker responses, lower cost. Great for quick summaries and simple tasks.",
+              badgeCls: "dv-wizard-badge-fast"
+            }
+          ];
+          const modelGrid = el.createDiv("dv-wizard-model-grid");
+          for (const m of models) {
+            const card = modelGrid.createDiv("dv-wizard-model-card");
+            if (plugin.settings.model === m.id)
+              card.addClass("dv-wizard-model-selected");
+            const cardTop = card.createDiv("dv-wizard-model-top");
+            cardTop.createEl("span", { text: m.name, cls: "dv-wizard-model-name" });
+            cardTop.createEl("span", { text: m.badge, cls: `dv-wizard-badge ${m.badgeCls}` });
+            card.createEl("p", { text: m.desc, cls: "dv-wizard-model-desc" });
+            card.onclick = async () => {
+              modelGrid.querySelectorAll(".dv-wizard-model-card").forEach((c) => c.removeClass("dv-wizard-model-selected"));
+              card.addClass("dv-wizard-model-selected");
+              plugin.settings.model = m.id;
+              await plugin.saveSettings();
+            };
+          }
+          el.createEl("button", { text: "Continue \u2192", cls: "dv-btn-primary dv-wizard-btn" }).onclick = next;
+        }
+      },
+      {
+        title: "\u2328\uFE0F Keyboard Shortcuts",
+        icon: "\u2328\uFE0F",
+        content: (el, _plugin, next, _close) => {
+          el.createEl("p", { text: "Deep Vault registers these commands in Obsidian. You can assign hotkeys to any of them in Settings \u2192 Hotkeys.", cls: "dv-wizard-text" });
+          const shortcuts = [
+            { cmd: "Open Deep Vault panel", hint: "Main panel" },
+            { cmd: "Deep Vault: Go to Research tab", hint: "Research" },
+            { cmd: "Deep Vault: Go to Chat tab", hint: "Chat" },
+            { cmd: "Deep Vault: Go to Search tab", hint: "Search" },
+            { cmd: "Deep Vault: Summarise current note", hint: "Quick action" },
+            { cmd: "Deep Vault: Auto-tag current note", hint: "Quick action" },
+            { cmd: "Deep Vault: Generate daily research digest", hint: "Digest" },
+            { cmd: "Deep Vault: Search vault", hint: "Vault search" }
+          ];
+          const table = el.createEl("table", { cls: "dv-wizard-table" });
+          const thead = table.createEl("thead");
+          const hrow = thead.createEl("tr");
+          hrow.createEl("th", { text: "Command" });
+          hrow.createEl("th", { text: "What it does" });
+          const tbody = table.createEl("tbody");
+          shortcuts.forEach((s) => {
+            const row = tbody.createEl("tr");
+            row.createEl("td", { text: s.cmd, cls: "dv-wizard-cmd" });
+            row.createEl("td", { text: s.hint, cls: "dv-wizard-hint-cell" });
+          });
+          el.createEl("p", { text: "\u{1F4A1} Tip: Go to Settings \u2192 Hotkeys and search Deep Vault to assign your preferred shortcuts.", cls: "dv-wizard-hint" });
+          el.createEl("button", { text: "Continue \u2192", cls: "dv-btn-primary dv-wizard-btn" }).onclick = next;
+        }
+      },
+      {
+        title: "\u{1F389} You are ready!",
+        icon: "\u{1F389}",
+        content: (el, _plugin, _next, close) => {
+          el.createEl("p", { text: "Deep Vault is all set up. Here is how to get started:", cls: "dv-wizard-text" });
+          const tips = [
+            { icon: "1\uFE0F\u20E3", text: "Open any note in your vault" },
+            { icon: "2\uFE0F\u20E3", text: "Click the \u{1F50D} icon in the left ribbon" },
+            { icon: "3\uFE0F\u20E3", text: "Try Summarize in the Research tab" },
+            { icon: "4\uFE0F\u20E3", text: "Ask Claude anything in the Chat tab" }
+          ];
+          const tipList = el.createDiv("dv-wizard-tips");
+          tips.forEach((t) => {
+            const row = tipList.createDiv("dv-wizard-tip-row");
+            row.createEl("span", { text: t.icon, cls: "dv-wizard-tip-icon" });
+            row.createEl("span", { text: t.text, cls: "dv-wizard-tip-text" });
+          });
+          el.createEl("button", { text: "Open Deep Vault \u{1F680}", cls: "dv-btn-primary dv-wizard-btn" }).onclick = close;
+        }
+      }
+    ];
+    this.plugin = plugin;
+  }
+  onOpen() {
+    this.renderStep();
+  }
+  renderStep() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass("dv-wizard-modal");
+    const step = this.steps[this.step];
+    const progress = contentEl.createDiv("dv-wizard-progress");
+    this.steps.forEach((_, i) => {
+      progress.createDiv(i <= this.step ? "dv-wizard-dot dv-wizard-dot-active" : "dv-wizard-dot");
+    });
+    contentEl.createEl("div", { text: step.icon, cls: "dv-wizard-icon" });
+    contentEl.createEl("h2", { text: step.title, cls: "dv-wizard-title" });
+    const contentArea = contentEl.createDiv("dv-wizard-content");
+    step.content(
+      contentArea,
+      this.plugin,
+      () => {
+        this.step++;
+        if (this.step < this.steps.length)
+          this.renderStep();
+        else
+          this.close();
+      },
+      () => this.close()
+    );
+  }
+  async onClose() {
+    this.plugin.settings.hasSeenWizard = true;
+    await this.plugin.saveSettings();
+    const leaves = this.app.workspace.getLeavesOfType(DEEP_VAULT_VIEW);
+    if (leaves.length === 0) {
+      const leaf = this.app.workspace.getRightLeaf(false);
+      await leaf.setViewState({ type: DEEP_VAULT_VIEW, active: true });
+      this.app.workspace.revealLeaf(leaf);
+    }
+    this.contentEl.empty();
+  }
+};
+
+// src/main.ts
 function renderMarkdown(container, text) {
   container.empty();
   const lines = text.split("\n");
@@ -197,43 +509,7 @@ function renderMarkdown(container, text) {
     }
   }
 }
-var NoteSuggestModal = class extends import_obsidian2.SuggestModal {
-  constructor(app, files, onSelect) {
-    super(app);
-    this.selected = [];
-    this.files = files;
-    this.onSelect = onSelect;
-    this.setPlaceholder("Search and select notes to synthesize (Enter to add, Esc when done)...");
-  }
-  getSuggestions(query) {
-    return this.files.filter(
-      (f) => f.basename.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 20);
-  }
-  renderSuggestion(file, el) {
-    const isSelected = this.selected.includes(file);
-    el.createEl("div", {
-      text: `${isSelected ? "\u2705 " : ""}${file.basename}`,
-      cls: isSelected ? "dv-modal-selected" : ""
-    });
-    el.createEl("small", { text: file.path, cls: "dv-modal-path" });
-  }
-  onChooseSuggestion(file, _evt) {
-    if (!this.selected.includes(file)) {
-      this.selected.push(file);
-      new import_obsidian2.Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
-    } else {
-      this.selected = this.selected.filter((f) => f !== file);
-      new import_obsidian2.Notice(`Removed: ${file.basename}`);
-    }
-    this.onSelect(this.selected);
-  }
-  selectSuggestion(value, evt) {
-    this.onChooseSuggestion(value, evt);
-    this.inputEl.dispatchEvent(new Event("input"));
-  }
-};
-var DeepVaultView = class extends import_obsidian2.ItemView {
+var DeepVaultView = class extends import_obsidian3.ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.chatHistory = [];
@@ -429,7 +705,7 @@ var DeepVaultView = class extends import_obsidian2.ItemView {
         this.chatInputEl.value = `Based on my note "${note.title}": `;
         this.chatInputEl.focus();
       } else
-        new import_obsidian2.Notice("Open a note first.");
+        new import_obsidian3.Notice("Open a note first.");
     };
     const webBtn = inputFooter.createEl("button", { text: "\u{1F310} Web", cls: "dv-btn-ghost dv-web-toggle" });
     webBtn.title = "Toggle web search for this query";
@@ -507,7 +783,7 @@ ${input}` : input;
   clearChat() {
     this.chatHistory = [];
     this.renderWelcomeMessage();
-    new import_obsidian2.Notice("Chat cleared.");
+    new import_obsidian3.Notice("Chat cleared.");
   }
   // ─── Synthesis Panel (v2.1) ───────────────────────────────────────────────
   buildPanelSynthesis(root) {
@@ -580,7 +856,7 @@ ${input}` : input;
   async runSynthesis(action) {
     const notes = this._selectedNotes;
     if (notes.length < 2) {
-      new import_obsidian2.Notice("Please select at least 2 notes to synthesize.");
+      new import_obsidian3.Notice("Please select at least 2 notes to synthesize.");
       return;
     }
     const synthResponseEl = this._synthResponseEl;
@@ -676,7 +952,7 @@ ${combinedNotes}`
       this.plugin.settings.templates = this.plugin.settings.templates.filter((t) => t.id !== tpl.id);
       await this.plugin.saveSettings();
       this.renderTemplates();
-      new import_obsidian2.Notice(`Template "${tpl.name}" deleted.`);
+      new import_obsidian3.Notice(`Template "${tpl.name}" deleted.`);
     };
   }
   openTemplateEditor(existing) {
@@ -690,14 +966,14 @@ ${combinedNotes}`
       }
       await this.plugin.saveSettings();
       this.renderTemplates();
-      new import_obsidian2.Notice(`Template "${tpl.name}" ${existing ? "updated" : "created"}!`);
+      new import_obsidian3.Notice(`Template "${tpl.name}" ${existing ? "updated" : "created"}!`);
     }).open();
   }
   async runTemplate(tpl) {
     var _a, _b;
     const note = this.getCurrentNote();
     if (tpl.useNoteContext && !note) {
-      new import_obsidian2.Notice("This template needs an open note. Please open a note first.");
+      new import_obsidian3.Notice("This template needs an open note. Please open a note first.");
       return;
     }
     this.switchTab("research");
@@ -787,7 +1063,7 @@ ${note.content.slice(0, 3e3)}` : tpl.prompt;
     const runSearch = () => {
       const query = searchInput.value.trim();
       if (!query) {
-        new import_obsidian2.Notice("Please enter a search query.");
+        new import_obsidian3.Notice("Please enter a search query.");
         return;
       }
       const folder = folderInput.value.trim();
@@ -925,11 +1201,11 @@ ${noteChunks.join("\n\n---\n\n")}`;
     if (!hotkeys || hotkeys.length === 0)
       return null;
     const modifierLabels = {
-      Mod: import_obsidian2.Platform.isMacOS ? "Cmd" : "Ctrl",
+      Mod: import_obsidian3.Platform.isMacOS ? "Cmd" : "Ctrl",
       Ctrl: "Ctrl",
-      Meta: import_obsidian2.Platform.isMacOS ? "Cmd" : "Win",
+      Meta: import_obsidian3.Platform.isMacOS ? "Cmd" : "Win",
       Shift: "Shift",
-      Alt: import_obsidian2.Platform.isMacOS ? "Option" : "Alt"
+      Alt: import_obsidian3.Platform.isMacOS ? "Option" : "Alt"
     };
     return hotkeys.map(
       (hk) => [...hk.modifiers.map((m) => {
@@ -1013,13 +1289,13 @@ ${noteChunks.join("\n\n---\n\n")}`;
     clearBtn.onclick = () => {
       this.chatHistory = [];
       this.renderHistory();
-      new import_obsidian2.Notice("History cleared.");
+      new import_obsidian3.Notice("History cleared.");
     };
   }
   // ─── Export to Note (v2.2) ────────────────────────────────────────────────
   async exportToNote(content, label) {
     if (!content.trim()) {
-      new import_obsidian2.Notice("Nothing to export.");
+      new import_obsidian3.Notice("Nothing to export.");
       return;
     }
     const folder = this.plugin.settings.exportFolder;
@@ -1044,19 +1320,19 @@ ${content}
         await this.app.vault.createFolder(folder);
       }
       await this.app.vault.create(filename, noteContent);
-      new import_obsidian2.Notice(`\u2705 Saved to "${filename}"`);
+      new import_obsidian3.Notice(`\u2705 Saved to "${filename}"`);
       const file = this.app.vault.getAbstractFileByPath(filename);
       if (file) {
         const leaf = this.app.workspace.getLeaf(true);
         await leaf.openFile(file);
       }
     } catch (err) {
-      new import_obsidian2.Notice(`\u274C Export failed: ${err.message}`);
+      new import_obsidian3.Notice(`\u274C Export failed: ${err.message}`);
     }
   }
   async exportHistoryToNote() {
     if (this.chatHistory.length === 0) {
-      new import_obsidian2.Notice("No history to export.");
+      new import_obsidian3.Notice("No history to export.");
       return;
     }
     const lines = [
@@ -1083,7 +1359,7 @@ ${content}
   }
   // ─── API Calls ────────────────────────────────────────────────────────────
   getCurrentNote() {
-    const active = this.app.workspace.getActiveViewOfType(import_obsidian2.MarkdownView);
+    const active = this.app.workspace.getActiveViewOfType(import_obsidian3.MarkdownView);
     if (active == null ? void 0 : active.file)
       return { content: active.editor.getValue(), title: active.file.basename };
     const leaves = this.app.workspace.getLeavesOfType("markdown");
@@ -1095,7 +1371,7 @@ ${content}
     return null;
   }
   getCurrentFile() {
-    const active = this.app.workspace.getActiveViewOfType(import_obsidian2.MarkdownView);
+    const active = this.app.workspace.getActiveViewOfType(import_obsidian3.MarkdownView);
     if (active == null ? void 0 : active.file)
       return active.file;
     const leaves = this.app.workspace.getLeavesOfType("markdown");
@@ -1115,7 +1391,7 @@ ${content}
     var _a, _b;
     const note = this.getCurrentNote();
     if (!note) {
-      new import_obsidian2.Notice("Please open a note first.");
+      new import_obsidian3.Notice("Please open a note first.");
       return;
     }
     if (action === "autotag") {
@@ -1296,12 +1572,12 @@ ${note.content.slice(0, 2e3)}`;
   }
   async applyTagsToNote(tags, note) {
     if (tags.length === 0) {
-      new import_obsidian2.Notice("No tags selected.");
+      new import_obsidian3.Notice("No tags selected.");
       return;
     }
     const file = this.getCurrentFile();
     if (!file) {
-      new import_obsidian2.Notice("Could not find the active note.");
+      new import_obsidian3.Notice("Could not find the active note.");
       return;
     }
     let content = await this.app.vault.read(file);
@@ -1348,7 +1624,7 @@ ${tagLines}
 ` + content;
     }
     await this.app.vault.modify(file, content);
-    new import_obsidian2.Notice(`\u2705 Applied ${tags.length} tag${tags.length !== 1 ? "s" : ""} to "${note.title}"`);
+    new import_obsidian3.Notice(`\u2705 Applied ${tags.length} tag${tags.length !== 1 ? "s" : ""} to "${note.title}"`);
     this.responseEl.empty();
     this.responseEl.createEl("p", { text: "\u2705 Tags Applied!", cls: "dv-autotag-title" });
     const appliedGrid = this.responseEl.createDiv("dv-tag-grid");
@@ -1446,7 +1722,7 @@ ${noteChunks.join("\n\n---\n\n")}`;
     const days = this._lastDigestDays;
     const count = this._lastDigestCount;
     if (!result) {
-      new import_obsidian2.Notice("No digest to export.");
+      new import_obsidian3.Notice("No digest to export.");
       return;
     }
     const dateStr = formatDate(new Date());
@@ -1489,89 +1765,7 @@ ${result}
   async onClose() {
   }
 };
-var TemplateEditorModal = class extends import_obsidian2.Modal {
-  constructor(app, existing, onSave) {
-    super(app);
-    this.existing = existing;
-    this.onSave = onSave;
-  }
-  onOpen() {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    const { contentEl } = this;
-    contentEl.empty();
-    contentEl.addClass("dv-modal");
-    contentEl.createEl("h2", { text: this.existing ? "\u270F\uFE0F Edit Template" : "\u{1F4DD} New Template", cls: "dv-modal-title" });
-    contentEl.createEl("label", { text: "Template Name", cls: "dv-modal-label" });
-    const nameInput = contentEl.createEl("input", {
-      cls: "dv-modal-input",
-      attr: { type: "text", placeholder: "e.g. Meeting Summary", value: (_b = (_a = this.existing) == null ? void 0 : _a.name) != null ? _b : "" }
-    });
-    contentEl.createEl("label", { text: "Icon (emoji)", cls: "dv-modal-label" });
-    const iconInput = contentEl.createEl("input", {
-      cls: "dv-modal-input dv-modal-input-sm",
-      attr: { type: "text", placeholder: "\u{1F4DD}", value: (_d = (_c = this.existing) == null ? void 0 : _c.icon) != null ? _d : "\u{1F4DD}" }
-    });
-    contentEl.createEl("label", { text: "Prompt", cls: "dv-modal-label" });
-    contentEl.createEl("p", { text: "Write your prompt. Claude will receive this, optionally followed by your note content.", cls: "dv-modal-hint" });
-    const promptInput = contentEl.createEl("textarea", {
-      cls: "dv-modal-textarea",
-      attr: { placeholder: "e.g. Summarise this note as a bullet list suitable for a team standup..." }
-    });
-    promptInput.value = (_f = (_e = this.existing) == null ? void 0 : _e.prompt) != null ? _f : "";
-    const toggleRow = contentEl.createDiv("dv-modal-toggle-row");
-    toggleRow.createEl("label", { text: "Include current note as context", cls: "dv-modal-toggle-label" });
-    const toggleInput = toggleRow.createEl("input", {
-      attr: { type: "checkbox" }
-    });
-    toggleInput.checked = (_h = (_g = this.existing) == null ? void 0 : _g.useNoteContext) != null ? _h : true;
-    contentEl.createEl("p", { text: "Quick insert:", cls: "dv-modal-label" });
-    const varRow = contentEl.createDiv("dv-modal-var-row");
-    const vars = [
-      { label: "{{note_title}}", desc: "Note title" },
-      { label: "{{date}}", desc: "Today's date" }
-    ];
-    for (const v of vars) {
-      const chip = varRow.createEl("button", { text: v.label, cls: "dv-var-chip", attr: { title: v.desc } });
-      chip.onclick = () => {
-        var _a2;
-        const pos = (_a2 = promptInput.selectionStart) != null ? _a2 : promptInput.value.length;
-        promptInput.value = promptInput.value.slice(0, pos) + v.label + promptInput.value.slice(pos);
-        promptInput.focus();
-      };
-    }
-    const btnRow = contentEl.createDiv("dv-modal-btn-row");
-    const cancelBtn = btnRow.createEl("button", { text: "Cancel", cls: "dv-btn-ghost" });
-    cancelBtn.onclick = () => this.close();
-    const saveBtn = btnRow.createEl("button", { text: this.existing ? "Save Changes" : "Create Template", cls: "dv-btn-primary" });
-    saveBtn.onclick = () => {
-      var _a2, _b2, _c2, _d2;
-      const name = nameInput.value.trim();
-      const prompt = promptInput.value.trim();
-      if (!name) {
-        new import_obsidian2.Notice("Please enter a template name.");
-        return;
-      }
-      if (!prompt) {
-        new import_obsidian2.Notice("Please enter a prompt.");
-        return;
-      }
-      const tpl = {
-        id: (_b2 = (_a2 = this.existing) == null ? void 0 : _a2.id) != null ? _b2 : `tpl-${Date.now()}`,
-        name,
-        icon: iconInput.value.trim() || "\u{1F4DD}",
-        prompt,
-        useNoteContext: toggleInput.checked,
-        createdAt: (_d2 = (_c2 = this.existing) == null ? void 0 : _c2.createdAt) != null ? _d2 : new Date().toISOString()
-      };
-      this.onSave(tpl);
-      this.close();
-    };
-  }
-  onClose() {
-    this.contentEl.empty();
-  }
-};
-var DeepVaultPlugin = class extends import_obsidian2.Plugin {
+var DeepVaultPlugin = class extends import_obsidian3.Plugin {
   async onload() {
     await this.loadSettings();
     this.registerView(DEEP_VAULT_VIEW, (leaf) => new DeepVaultView(leaf, this));
@@ -1677,196 +1871,7 @@ var DeepVaultPlugin = class extends import_obsidian2.Plugin {
     await this.saveData(this.settings);
   }
 };
-var SetupWizardModal = class extends import_obsidian2.Modal {
-  constructor(app, plugin) {
-    super(app);
-    this.step = 0;
-    this.steps = [
-      {
-        title: "\u{1F44B} Welcome to Deep Vault",
-        icon: "\u{1F50D}",
-        content: (el, plugin, next, _close) => {
-          el.createEl("p", { text: "Deep Vault is your AI-powered research assistant inside Obsidian, powered by Anthropic's Claude.", cls: "dv-wizard-text" });
-          el.createEl("p", { text: "This quick setup takes less than 2 minutes.", cls: "dv-wizard-text" });
-          const features = [
-            "\u{1F52C} Research tab \u2014 6 smart quick actions on any note",
-            "\u{1F4AC} Chat \u2014 multi-turn conversation with your vault",
-            "\u{1F517} Synthesis \u2014 combine and compare multiple notes",
-            "\u{1F4DD} Templates \u2014 save and reuse custom prompts",
-            "\u{1F50D} Search \u2014 natural language search across all notes",
-            "\u{1F4F0} Daily Digest \u2014 summarise recent work automatically"
-          ];
-          const list = el.createEl("ul", { cls: "dv-wizard-list" });
-          features.forEach((f) => list.createEl("li", { text: f }));
-          el.createEl("button", { text: "Get Started \u2192", cls: "dv-btn-primary dv-wizard-btn" }).onclick = next;
-        }
-      },
-      {
-        title: "\u{1F511} Connect to Claude",
-        icon: "\u{1F511}",
-        content: (el, plugin, next, _close) => {
-          el.createEl("p", { text: "Deep Vault needs an Anthropic API key to power Claude.", cls: "dv-wizard-text" });
-          const steps = el.createEl("ol", { cls: "dv-wizard-steps" });
-          steps.createEl("li", { text: "Go to console.anthropic.com and sign up" });
-          steps.createEl("li", { text: "Navigate to API Keys \u2192 Create Key" });
-          steps.createEl("li", { text: "Copy the key (starts with sk-ant-...)" });
-          steps.createEl("li", { text: "Paste it below" });
-          el.createEl("label", { text: "Your API Key", cls: "dv-modal-label" });
-          const keyInput = el.createEl("input", {
-            cls: "dv-modal-input",
-            attr: { type: "password", placeholder: "sk-ant-..." }
-          });
-          keyInput.value = plugin.settings.apiKey;
-          el.createEl("p", { text: "\u{1F512} Your key is stored locally in Obsidian and never sent anywhere except Anthropic.", cls: "dv-wizard-hint" });
-          const btn = el.createEl("button", { text: "Save & Continue \u2192", cls: "dv-btn-primary dv-wizard-btn" });
-          btn.onclick = async () => {
-            const key = keyInput.value.trim();
-            if (!key.startsWith("sk-ant-") && key.length > 0) {
-              new import_obsidian2.Notice("That doesn't look like a valid Anthropic API key.");
-              return;
-            }
-            plugin.settings.apiKey = key;
-            await plugin.saveSettings();
-            next();
-          };
-          const skipBtn = el.createEl("button", { text: "Skip for now", cls: "dv-btn-ghost dv-wizard-skip" });
-          skipBtn.onclick = next;
-        }
-      },
-      {
-        title: "\u{1F916} Choose Your Model",
-        icon: "\u{1F916}",
-        content: (el, plugin, next, _close) => {
-          el.createEl("p", { text: "Which Claude model would you like to use?", cls: "dv-wizard-text" });
-          const models = [
-            {
-              id: "claude-sonnet-4-20250514",
-              name: "Claude Sonnet 4",
-              badge: "\u2B50 Recommended",
-              desc: "Best balance of intelligence and speed. Ideal for deep research, synthesis and complex analysis.",
-              badgeCls: "dv-wizard-badge-recommended"
-            },
-            {
-              id: "claude-haiku-4-5-20251001",
-              name: "Claude Haiku 4.5",
-              badge: "\u26A1 Fastest",
-              desc: "Quicker responses, lower cost. Great for quick summaries and simple tasks.",
-              badgeCls: "dv-wizard-badge-fast"
-            }
-          ];
-          const modelGrid = el.createDiv("dv-wizard-model-grid");
-          for (const m of models) {
-            const card = modelGrid.createDiv("dv-wizard-model-card");
-            if (plugin.settings.model === m.id)
-              card.addClass("dv-wizard-model-selected");
-            const cardTop = card.createDiv("dv-wizard-model-top");
-            cardTop.createEl("span", { text: m.name, cls: "dv-wizard-model-name" });
-            cardTop.createEl("span", { text: m.badge, cls: `dv-wizard-badge ${m.badgeCls}` });
-            card.createEl("p", { text: m.desc, cls: "dv-wizard-model-desc" });
-            card.onclick = async () => {
-              modelGrid.querySelectorAll(".dv-wizard-model-card").forEach((c) => c.removeClass("dv-wizard-model-selected"));
-              card.addClass("dv-wizard-model-selected");
-              plugin.settings.model = m.id;
-              await plugin.saveSettings();
-            };
-          }
-          el.createEl("button", { text: "Continue \u2192", cls: "dv-btn-primary dv-wizard-btn" }).onclick = next;
-        }
-      },
-      {
-        title: "\u2328\uFE0F Keyboard Shortcuts",
-        icon: "\u2328\uFE0F",
-        content: (el, _plugin, next, _close) => {
-          el.createEl("p", { text: "Deep Vault registers these commands in Obsidian. You can assign hotkeys to any of them in Settings \u2192 Hotkeys.", cls: "dv-wizard-text" });
-          const shortcuts = [
-            { cmd: "Open Deep Vault panel", hint: "Main panel" },
-            { cmd: "Deep Vault: Go to Research tab", hint: "Research" },
-            { cmd: "Deep Vault: Go to Chat tab", hint: "Chat" },
-            { cmd: "Deep Vault: Go to Search tab", hint: "Search" },
-            { cmd: "Deep Vault: Summarise current note", hint: "Quick action" },
-            { cmd: "Deep Vault: Auto-tag current note", hint: "Quick action" },
-            { cmd: "Deep Vault: Generate daily research digest", hint: "Digest" },
-            { cmd: "Deep Vault: Search vault", hint: "Vault search" }
-          ];
-          const table = el.createEl("table", { cls: "dv-wizard-table" });
-          const thead = table.createEl("thead");
-          const hrow = thead.createEl("tr");
-          hrow.createEl("th", { text: "Command" });
-          hrow.createEl("th", { text: "What it does" });
-          const tbody = table.createEl("tbody");
-          shortcuts.forEach((s) => {
-            const row = tbody.createEl("tr");
-            row.createEl("td", { text: s.cmd, cls: "dv-wizard-cmd" });
-            row.createEl("td", { text: s.hint, cls: "dv-wizard-hint-cell" });
-          });
-          el.createEl("p", { text: "\u{1F4A1} Tip: Go to Settings \u2192 Hotkeys and search Deep Vault to assign your preferred shortcuts.", cls: "dv-wizard-hint" });
-          el.createEl("button", { text: "Continue \u2192", cls: "dv-btn-primary dv-wizard-btn" }).onclick = next;
-        }
-      },
-      {
-        title: "\u{1F389} You are ready!",
-        icon: "\u{1F389}",
-        content: (el, _plugin, _next, close) => {
-          el.createEl("p", { text: "Deep Vault is all set up. Here is how to get started:", cls: "dv-wizard-text" });
-          const tips = [
-            { icon: "1\uFE0F\u20E3", text: "Open any note in your vault" },
-            { icon: "2\uFE0F\u20E3", text: "Click the \u{1F50D} icon in the left ribbon" },
-            { icon: "3\uFE0F\u20E3", text: "Try Summarize in the Research tab" },
-            { icon: "4\uFE0F\u20E3", text: "Ask Claude anything in the Chat tab" }
-          ];
-          const tipList = el.createDiv("dv-wizard-tips");
-          tips.forEach((t) => {
-            const row = tipList.createDiv("dv-wizard-tip-row");
-            row.createEl("span", { text: t.icon, cls: "dv-wizard-tip-icon" });
-            row.createEl("span", { text: t.text, cls: "dv-wizard-tip-text" });
-          });
-          el.createEl("button", { text: "Open Deep Vault \u{1F680}", cls: "dv-btn-primary dv-wizard-btn" }).onclick = close;
-        }
-      }
-    ];
-    this.plugin = plugin;
-  }
-  onOpen() {
-    this.renderStep();
-  }
-  renderStep() {
-    const { contentEl } = this;
-    contentEl.empty();
-    contentEl.addClass("dv-wizard-modal");
-    const step = this.steps[this.step];
-    const progress = contentEl.createDiv("dv-wizard-progress");
-    this.steps.forEach((_, i) => {
-      progress.createDiv(i <= this.step ? "dv-wizard-dot dv-wizard-dot-active" : "dv-wizard-dot");
-    });
-    contentEl.createEl("div", { text: step.icon, cls: "dv-wizard-icon" });
-    contentEl.createEl("h2", { text: step.title, cls: "dv-wizard-title" });
-    const contentArea = contentEl.createDiv("dv-wizard-content");
-    step.content(
-      contentArea,
-      this.plugin,
-      () => {
-        this.step++;
-        if (this.step < this.steps.length)
-          this.renderStep();
-        else
-          this.close();
-      },
-      () => this.close()
-    );
-  }
-  async onClose() {
-    this.plugin.settings.hasSeenWizard = true;
-    await this.plugin.saveSettings();
-    const leaves = this.app.workspace.getLeavesOfType(DEEP_VAULT_VIEW);
-    if (leaves.length === 0) {
-      const leaf = this.app.workspace.getRightLeaf(false);
-      await leaf.setViewState({ type: DEEP_VAULT_VIEW, active: true });
-      this.app.workspace.revealLeaf(leaf);
-    }
-    this.contentEl.empty();
-  }
-};
-var DeepVaultSettingTab = class extends import_obsidian2.PluginSettingTab {
+var DeepVaultSettingTab = class extends import_obsidian3.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -1875,23 +1880,23 @@ var DeepVaultSettingTab = class extends import_obsidian2.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "\u{1F50D} Deep Vault Settings" });
-    new import_obsidian2.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
+    new import_obsidian3.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
       this.plugin.settings.apiKey = value.trim();
       await this.plugin.saveSettings();
     }));
-    new import_obsidian2.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
+    new import_obsidian3.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
       this.plugin.settings.model = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian2.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
+    new import_obsidian3.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
       this.plugin.settings.maxTokens = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian2.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
+    new import_obsidian3.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
       this.plugin.settings.enableWebSearch = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian2.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
+    new import_obsidian3.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
       this.plugin.settings.exportFolder = value || "Deep Vault Exports";
       await this.plugin.saveSettings();
     }));
@@ -1913,7 +1918,7 @@ var DeepVaultSettingTab = class extends import_obsidian2.PluginSettingTab {
     resetBtn.onclick = async () => {
       this.plugin.settings.templates = DEFAULT_TEMPLATES;
       await this.plugin.saveSettings();
-      new import_obsidian2.Notice("Templates reset to defaults.");
+      new import_obsidian3.Notice("Templates reset to defaults.");
       this.display();
     };
   }
