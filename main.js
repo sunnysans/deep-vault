@@ -913,6 +913,17 @@ ${noteChunks.join("\n\n---\n\n")}`;
     }
     const wizardBtn = panel.createEl("button", { text: "\u{1F9D9} Re-run Setup Wizard", cls: "dv-btn-ghost dv-hotkey-wizard-btn" });
     wizardBtn.onclick = () => new SetupWizardModal(this.app, this.plugin).open();
+    panel.createEl("p", { text: "ABOUT", cls: "dv-section-label dv-section-label-top" });
+    const about = panel.createDiv("dv-about");
+    about.createEl("p", { text: `Deep Vault v${this.plugin.manifest.version}`, cls: "dv-about-version" });
+    about.createEl("p", { text: "\xA9 2026 Sunny Santhosh. Licensed under the MIT License.", cls: "dv-about-copyright" });
+    const links = about.createDiv("dv-about-links");
+    const githubLink = links.createEl("a", { text: "GitHub", href: this.plugin.manifest.authorUrl, cls: "dv-about-link" });
+    githubLink.setAttr("target", "_blank");
+    githubLink.setAttr("rel", "noopener");
+    const fundingLink = links.createEl("a", { text: "\u2615 Support", href: this.plugin.manifest.fundingUrl, cls: "dv-about-link" });
+    fundingLink.setAttr("target", "_blank");
+    fundingLink.setAttr("rel", "noopener");
   }
   renderHistory() {
     this.panelHistory.empty();

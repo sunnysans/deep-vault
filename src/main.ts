@@ -1077,7 +1077,7 @@ ${noteChunks.join("\n\n---\n\n")}`;
     const githubLink = links.createEl("a", { text: "GitHub", href: this.plugin.manifest.authorUrl, cls: "dv-about-link" });
     githubLink.setAttr("target", "_blank");
     githubLink.setAttr("rel", "noopener");
-    const fundingLink = links.createEl("a", { text: "☕ Support", href: this.plugin.manifest.fundingUrl, cls: "dv-about-link" });
+    const fundingLink = links.createEl("a", { text: "☕ Support", href: (this.plugin.manifest as any).fundingUrl, cls: "dv-about-link" });
     fundingLink.setAttr("target", "_blank");
     fundingLink.setAttr("rel", "noopener");
   }
