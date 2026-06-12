@@ -86,7 +86,7 @@ Tracked here for visibility. No fixed release target.
 
 ## 🔧 Tech Debt
 
-**Priority order (set 2026-06-12):** TD-01 ✅ → TD-04 ✅ → TD-08 → TD-07. TD-05 deferred — it's really a P1 community-submission item, bundle it with P1-01–04.
+**Priority order (set 2026-06-12):** TD-01 ✅ → TD-04 ✅ → TD-08 ✅ → TD-07. TD-05 deferred — it's really a P1 community-submission item, bundle it with P1-01–04.
 
 | # | Item | Risk if ignored | Done |
 |---|---|---|:---:|
@@ -97,7 +97,7 @@ Tracked here for visibility. No fixed release target.
 | TD-05 | `docs/screenshots/` directory doesn't exist | README has placeholder text instead of real screenshots — deferred, bundle with P1-01–04 | `[ ]` |
 | TD-06 | No `vitest.config.ts` | Obsidian mock alias must live in `package.json` — hard to scale | `[x]` |
 | TD-07 | Web search beta header may expire | `anthropic-beta: web-search-2025-03-05` — check when Anthropic promotes to stable | `[ ]` |
-| TD-08 | esbuild dev-server vulnerability (GHSA-67mh-4wv8-2f99) | Chain: `esbuild@0.17.3` → `vite` → `vite-node` → `vitest`. Attack vector is esbuild HTTP dev server — **not applicable** to this project (we use file watcher only). Fix requires `esbuild@0.28.0` (breaking change). Address in a dedicated PR with full build test. | `[ ]` |
+| TD-08 | esbuild dev-server vulnerability (GHSA-67mh-4wv8-2f99) | Chain: `esbuild@0.17.3` → `vite` → `vite-node` → `vitest`. Attack vector is esbuild HTTP dev server — **not applicable** to this project (we use file watcher only). Fixed by bumping `esbuild` to `^0.25.0` and `vitest` to `^3.0.0` | `[x]` done as v4.2.3 |
 
 ### TD-01 sub-tasks — modularize `src/main.ts`
 
@@ -142,6 +142,7 @@ Move items here when done. Keep for audit trail.
 | ✅ | Codify versioning policy (PATCH/MINOR/MAJOR) in CLAUDE.md | 2026-06-12 |
 | ✅ | v4.2.1 — TD-01 complete: split `src/main.ts` monolith into `src/api/claude.ts`, `src/types.ts`, `src/modals.ts`, `src/settings.ts`, `src/views/DeepVaultView.ts` | 2026-06-12 |
 | ✅ | v4.2.2 — TD-04 complete: `deploy.bat` now takes vault path as a command-line argument instead of a hardcoded `VAULT_DIR` | 2026-06-12 |
+| ✅ | v4.2.3 — TD-08 complete: bumped `esbuild` to `^0.25.0` and `vitest` to `^3.0.0`, fixing GHSA-67mh-4wv8-2f99 | 2026-06-12 |
 
 ---
 
@@ -155,5 +156,5 @@ Move items here when done. Keep for audit trail.
 
 ---
 
-*Last updated: 2026-06-12 — v4.2.2*
+*Last updated: 2026-06-12 — v4.2.3*
 *Related files: `NextSteps.md` (testing plan) · `TESTING.md` (QA protocol) · `PUBLISHING.md` (submission guide) · `MyDocs.md` (dev reference)*

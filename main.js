@@ -40,7 +40,7 @@ var DEFAULT_TEMPLATES = [
     icon: "\u{1F4CB}",
     prompt: "Write a crisp executive summary of this note in 3 sentences, suitable for sharing with a non-expert audience:",
     useNoteContext: true,
-    createdAt: new Date().toISOString()
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
   },
   {
     id: "tpl-2",
@@ -48,7 +48,7 @@ var DEFAULT_TEMPLATES = [
     icon: "\u{1F52C}",
     prompt: "Critically analyse this note. What are the strongest arguments? What assumptions are made? What are the weakest points?",
     useNoteContext: true,
-    createdAt: new Date().toISOString()
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
   },
   {
     id: "tpl-3",
@@ -56,7 +56,7 @@ var DEFAULT_TEMPLATES = [
     icon: "\u{1F9D2}",
     prompt: "Explain the main ideas of this note as if explaining to a curious 12-year-old with no background knowledge:",
     useNoteContext: true,
-    createdAt: new Date().toISOString()
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
   },
   {
     id: "tpl-4",
@@ -64,7 +64,7 @@ var DEFAULT_TEMPLATES = [
     icon: "\u2705",
     prompt: "Based on this note, generate a prioritised list of concrete action items and next steps I should take:",
     useNoteContext: true,
-    createdAt: new Date().toISOString()
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
   },
   {
     id: "tpl-5",
@@ -72,7 +72,7 @@ var DEFAULT_TEMPLATES = [
     icon: "\u2694\uFE0F",
     prompt: "Generate the strongest possible counter-arguments and opposing viewpoints to the ideas presented in this note:",
     useNoteContext: true,
-    createdAt: new Date().toISOString()
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
   },
   {
     id: "tpl-6",
@@ -80,7 +80,7 @@ var DEFAULT_TEMPLATES = [
     icon: "\u{1F426}",
     prompt: "Turn the key ideas from this note into an engaging Twitter/X thread of 5 tweets. Make it accessible and interesting:",
     useNoteContext: true,
-    createdAt: new Date().toISOString()
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
   }
 ];
 var DEFAULT_SETTINGS = {
@@ -203,7 +203,7 @@ var TemplateEditorModal = class extends import_obsidian.Modal {
         icon: iconInput.value.trim() || "\u{1F4DD}",
         prompt,
         useNoteContext: toggleInput.checked,
-        createdAt: (_d2 = (_c2 = this.existing) == null ? void 0 : _c2.createdAt) != null ? _d2 : new Date().toISOString()
+        createdAt: (_d2 = (_c2 = this.existing) == null ? void 0 : _c2.createdAt) != null ? _d2 : (/* @__PURE__ */ new Date()).toISOString()
       };
       this.onSave(tpl);
       this.close();
@@ -293,8 +293,7 @@ var SetupWizardModal = class extends import_obsidian.Modal {
           const modelGrid = el.createDiv("dv-wizard-model-grid");
           for (const m of models) {
             const card = modelGrid.createDiv("dv-wizard-model-card");
-            if (plugin.settings.model === m.id)
-              card.addClass("dv-wizard-model-selected");
+            if (plugin.settings.model === m.id) card.addClass("dv-wizard-model-selected");
             const cardTop = card.createDiv("dv-wizard-model-top");
             cardTop.createEl("span", { text: m.name, cls: "dv-wizard-model-name" });
             cardTop.createEl("span", { text: m.badge, cls: `dv-wizard-badge ${m.badgeCls}` });
@@ -382,10 +381,8 @@ var SetupWizardModal = class extends import_obsidian.Modal {
       this.plugin,
       () => {
         this.step++;
-        if (this.step < this.steps.length)
-          this.renderStep();
-        else
-          this.close();
+        if (this.step < this.steps.length) this.renderStep();
+        else this.close();
       },
       () => this.close()
     );
@@ -559,10 +556,8 @@ function renderMarkdown(container, text) {
       const p = container.createEl("p", { cls: "dv-md-p" });
       const parts = line.split(/\*\*(.*?)\*\*/g);
       parts.forEach((part, i) => {
-        if (i % 2 === 1)
-          p.createEl("strong", { text: part });
-        else if (part)
-          p.appendText(part);
+        if (i % 2 === 1) p.createEl("strong", { text: part });
+        else if (part) p.appendText(part);
       });
     }
   }
@@ -590,8 +585,7 @@ var DeepVaultView = class extends import_obsidian4.ItemView {
     root.empty();
     root.addClass("dv-root");
     const isMobile = (_a = this.app.isMobile) != null ? _a : window.innerWidth < 768;
-    if (isMobile)
-      root.addClass("dv-mobile");
+    if (isMobile) root.addClass("dv-mobile");
     this.buildHeader(root);
     this.buildTabs(root);
     this.buildPanelResearch(root);
@@ -615,8 +609,7 @@ var DeepVaultView = class extends import_obsidian4.ItemView {
     root.addEventListener("touchend", (e) => {
       const dx = e.changedTouches[0].clientX - touchStartX;
       const dy = e.changedTouches[0].clientY - touchStartY;
-      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx))
-        return;
+      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
       const currentIdx = tabOrder.indexOf(this.activeTab);
       if (dx < 0 && currentIdx < tabOrder.length - 1) {
         this.switchTab(tabOrder[currentIdx + 1]);
@@ -668,10 +661,8 @@ var DeepVaultView = class extends import_obsidian4.ItemView {
     const map = { research: 0, chat: 1, synthesis: 2, templates: 3, search: 4, history: 5 };
     tabs[map[tab]].addClass("dv-tab-active");
     panels[map[tab]].removeClass("dv-hidden");
-    if (tab === "chat")
-      (_a = this.chatInputEl) == null ? void 0 : _a.focus();
-    if (tab === "templates")
-      this.renderTemplates();
+    if (tab === "chat") (_a = this.chatInputEl) == null ? void 0 : _a.focus();
+    if (tab === "templates") this.renderTemplates();
     if (tab === "history") {
       this.renderHotkeys();
       this.renderHistory();
@@ -762,8 +753,7 @@ var DeepVaultView = class extends import_obsidian4.ItemView {
       if (note) {
         this.chatInputEl.value = `Based on my note "${note.title}": `;
         this.chatInputEl.focus();
-      } else
-        new import_obsidian4.Notice("Open a note first.");
+      } else new import_obsidian4.Notice("Open a note first.");
     };
     const webBtn = inputFooter.createEl("button", { text: "\u{1F310} Web", cls: "dv-btn-ghost dv-web-toggle" });
     webBtn.title = "Toggle web search for this query";
@@ -797,8 +787,7 @@ var DeepVaultView = class extends import_obsidian4.ItemView {
   }
   async sendChatMessage() {
     const input = this.chatInputEl.value.trim();
-    if (!input)
-      return;
+    if (!input) return;
     const note = this.getCurrentNote();
     const useWeb = this._webEnabled && this.plugin.settings.enableWebSearch;
     this.chatInputEl.value = "";
@@ -812,17 +801,15 @@ ${note.content.slice(0, 3e3)}
 
 ${input}` : input;
     messages.push({ role: "user", content: userContent });
-    this.chatHistory.push({ role: "user", content: input, timestamp: new Date(), noteTitle: note == null ? void 0 : note.title });
+    this.chatHistory.push({ role: "user", content: input, timestamp: /* @__PURE__ */ new Date(), noteTitle: note == null ? void 0 : note.title });
     await this.callClaudeChat(messages, useWeb);
   }
   addChatBubble(role, content, noteTitle) {
     const welcome = this.chatMessagesEl.querySelector(".dv-chat-welcome");
-    if (welcome)
-      welcome.remove();
+    if (welcome) welcome.remove();
     const wrap = this.chatMessagesEl.createDiv(`dv-bubble-wrap dv-bubble-${role}`);
     if (role === "user") {
-      if (noteTitle)
-        wrap.createEl("span", { text: `\u{1F4C4} ${noteTitle}`, cls: "dv-bubble-note" });
+      if (noteTitle) wrap.createEl("span", { text: `\u{1F4C4} ${noteTitle}`, cls: "dv-bubble-note" });
       wrap.createEl("div", { text: content, cls: "dv-bubble dv-bubble-user" });
     } else {
       const bubble = wrap.createDiv("dv-bubble dv-bubble-assistant");
@@ -834,7 +821,7 @@ ${input}` : input;
         exportBtn.onclick = () => this.exportToNote(content, "Chat Response");
       }
     }
-    wrap.createEl("span", { text: formatTime(new Date()), cls: "dv-bubble-time" });
+    wrap.createEl("span", { text: formatTime(/* @__PURE__ */ new Date()), cls: "dv-bubble-time" });
     this.chatMessagesEl.scrollTop = this.chatMessagesEl.scrollHeight;
     return wrap;
   }
@@ -955,7 +942,7 @@ ${combinedNotes}`
       renderMarkdown(synthResponseEl, result);
       this._lastSynthResponse = result;
       this._synthExportRow.removeClass("dv-hidden");
-      this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
+      this.chatHistory.push({ role: "assistant", content: result, timestamp: /* @__PURE__ */ new Date() });
     } catch (err) {
       synthResponseEl.empty();
       synthResponseEl.createEl("p", { text: `\u274C ${err.message}`, cls: "dv-error" });
@@ -1017,8 +1004,7 @@ ${combinedNotes}`
     new TemplateEditorModal(this.app, existing, async (tpl) => {
       if (existing) {
         const idx = this.plugin.settings.templates.findIndex((t) => t.id === existing.id);
-        if (idx !== -1)
-          this.plugin.settings.templates[idx] = tpl;
+        if (idx !== -1) this.plugin.settings.templates[idx] = tpl;
       } else {
         this.plugin.settings.templates.push(tpl);
       }
@@ -1059,10 +1045,10 @@ ${note.content.slice(0, 3e3)}` : tpl.prompt;
       this.chatHistory.push({
         role: "user",
         content: `[Template: ${tpl.name}]${note ? ` on note "${note.title}"` : ""}`,
-        timestamp: new Date(),
+        timestamp: /* @__PURE__ */ new Date(),
         noteTitle: note == null ? void 0 : note.title
       });
-      this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
+      this.chatHistory.push({ role: "assistant", content: result, timestamp: /* @__PURE__ */ new Date() });
     } catch (err) {
       this.responseEl.empty();
       this.responseEl.createEl("p", { text: `\u274C ${err.message}`, cls: "dv-error" });
@@ -1163,12 +1149,9 @@ ${note.content.slice(0, 3e3)}` : tpl.prompt;
       const headings = (_b = (_a = cache == null ? void 0 : cache.headings) == null ? void 0 : _a.map((h) => h.heading.toLowerCase()).join(" ")) != null ? _b : "";
       const tags = (_d = (_c = cache == null ? void 0 : cache.tags) == null ? void 0 : _c.map((t) => t.tag).join(" ")) != null ? _d : "";
       const score = keywords.reduce((acc, kw) => {
-        if (file.basename.toLowerCase().includes(kw))
-          acc += 3;
-        if (headings.includes(kw))
-          acc += 2;
-        if (tags.includes(kw))
-          acc += 2;
+        if (file.basename.toLowerCase().includes(kw)) acc += 3;
+        if (headings.includes(kw)) acc += 2;
+        if (tags.includes(kw)) acc += 2;
         return acc;
       }, 0);
       return { file, score };
@@ -1236,8 +1219,8 @@ ${noteChunks.join("\n\n---\n\n")}`;
         sourceGrid.createEl("span", { text: `+${sourceNames.length - 12} more`, cls: "dv-source-chip dv-source-more" });
       }
       exportRow.removeClass("dv-hidden");
-      this.chatHistory.push({ role: "user", content: `[Vault Search] "${query}"`, timestamp: new Date() });
-      this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
+      this.chatHistory.push({ role: "user", content: `[Vault Search] "${query}"`, timestamp: /* @__PURE__ */ new Date() });
+      this.chatHistory.push({ role: "assistant", content: result, timestamp: /* @__PURE__ */ new Date() });
     } catch (err) {
       resultsEl.empty();
       resultsEl.createEl("p", { text: `\u274C ${err.message}`, cls: "dv-error" });
@@ -1253,11 +1236,9 @@ ${noteChunks.join("\n\n---\n\n")}`;
   getAssignedHotkey(commandId) {
     var _a;
     const hotkeyManager = this.app.hotkeyManager;
-    if (!hotkeyManager)
-      return null;
+    if (!hotkeyManager) return null;
     const hotkeys = (_a = hotkeyManager.getHotkeys(commandId)) != null ? _a : hotkeyManager.getDefaultHotkeys(commandId);
-    if (!hotkeys || hotkeys.length === 0)
-      return null;
+    if (!hotkeys || hotkeys.length === 0) return null;
     const modifierLabels = {
       Mod: import_obsidian4.Platform.isMacOS ? "Cmd" : "Ctrl",
       Ctrl: "Ctrl",
@@ -1337,8 +1318,7 @@ ${noteChunks.join("\n\n---\n\n")}`;
       const itemHeader = item.createDiv("dv-history-item-header");
       itemHeader.createEl("span", { text: msg.role === "user" ? "You" : "Claude", cls: "dv-history-role" });
       itemHeader.createEl("span", { text: formatTime(msg.timestamp), cls: "dv-history-time" });
-      if (msg.noteTitle)
-        item.createEl("span", { text: `\u{1F4C4} ${msg.noteTitle}`, cls: "dv-history-note" });
+      if (msg.noteTitle) item.createEl("span", { text: `\u{1F4C4} ${msg.noteTitle}`, cls: "dv-history-note" });
       item.createEl("p", { text: msg.content.slice(0, 140) + (msg.content.length > 140 ? "..." : ""), cls: "dv-history-preview" });
       const saveBtn = item.createEl("button", { text: "\u{1F4BE} Save", cls: "dv-btn-save-small" });
       saveBtn.onclick = () => this.exportToNote(msg.content, msg.role === "user" ? "My Question" : "Claude Response");
@@ -1357,11 +1337,11 @@ ${noteChunks.join("\n\n---\n\n")}`;
       return;
     }
     const folder = this.plugin.settings.exportFolder;
-    const date = formatDate(new Date());
-    const time = formatTime(new Date()).replace(":", "-");
+    const date = formatDate(/* @__PURE__ */ new Date());
+    const time = formatTime(/* @__PURE__ */ new Date()).replace(":", "-");
     const filename = `${folder}/${label} - ${date} ${time}.md`;
     const noteContent = `---
-created: ${new Date().toISOString()}
+created: ${(/* @__PURE__ */ new Date()).toISOString()}
 source: Deep Vault
 type: ${label}
 ---
@@ -1395,18 +1375,17 @@ ${content}
     }
     const lines = [
       `---`,
-      `created: ${new Date().toISOString()}`,
+      `created: ${(/* @__PURE__ */ new Date()).toISOString()}`,
       `source: Deep Vault`,
       `type: Session History`,
       `---`,
       ``,
-      `# Deep Vault Session \u2014 ${formatDate(new Date())}`,
+      `# Deep Vault Session \u2014 ${formatDate(/* @__PURE__ */ new Date())}`,
       ``
     ];
     for (const msg of this.chatHistory) {
       lines.push(`## ${msg.role === "user" ? "\u{1F9D1} You" : "\u{1F916} Claude"} \u2014 ${formatTime(msg.timestamp)}`);
-      if (msg.noteTitle)
-        lines.push(`*Context: ${msg.noteTitle}*`);
+      if (msg.noteTitle) lines.push(`*Context: ${msg.noteTitle}*`);
       lines.push("");
       lines.push(msg.content);
       lines.push("");
@@ -1418,32 +1397,27 @@ ${content}
   // ─── API Calls ────────────────────────────────────────────────────────────
   getCurrentNote() {
     const active = this.app.workspace.getActiveViewOfType(import_obsidian4.MarkdownView);
-    if (active == null ? void 0 : active.file)
-      return { content: active.editor.getValue(), title: active.file.basename };
+    if (active == null ? void 0 : active.file) return { content: active.editor.getValue(), title: active.file.basename };
     const leaves = this.app.workspace.getLeavesOfType("markdown");
     for (const leaf of leaves) {
       const view = leaf.view;
-      if (view.file)
-        return { content: view.editor.getValue(), title: view.file.basename };
+      if (view.file) return { content: view.editor.getValue(), title: view.file.basename };
     }
     return null;
   }
   getCurrentFile() {
     const active = this.app.workspace.getActiveViewOfType(import_obsidian4.MarkdownView);
-    if (active == null ? void 0 : active.file)
-      return active.file;
+    if (active == null ? void 0 : active.file) return active.file;
     const leaves = this.app.workspace.getLeavesOfType("markdown");
     for (const leaf of leaves) {
       const view = leaf.view;
-      if (view.file)
-        return view.file;
+      if (view.file) return view.file;
     }
     return null;
   }
   setStatus(msg) {
     this.statusEl.empty();
-    if (msg)
-      this.statusEl.createEl("span", { text: msg, cls: "dv-status-text" });
+    if (msg) this.statusEl.createEl("span", { text: msg, cls: "dv-status-text" });
   }
   async runQuickAction(action) {
     var _a, _b;
@@ -1512,8 +1486,8 @@ ${note.content}`
       renderMarkdown(this.responseEl, result);
       this.lastResponse = result;
       (_b = this._exportRow) == null ? void 0 : _b.removeClass("dv-hidden");
-      this.chatHistory.push({ role: "user", content: `[Quick Action: ${action}] on note "${note.title}"`, timestamp: new Date(), noteTitle: note.title });
-      this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
+      this.chatHistory.push({ role: "user", content: `[Quick Action: ${action}] on note "${note.title}"`, timestamp: /* @__PURE__ */ new Date(), noteTitle: note.title });
+      this.chatHistory.push({ role: "assistant", content: result, timestamp: /* @__PURE__ */ new Date() });
     } catch (err) {
       this.responseEl.empty();
       this.responseEl.createEl("p", { text: `\u274C ${err.message}`, cls: "dv-error" });
@@ -1551,8 +1525,7 @@ ${note.content.slice(0, 2e3)}`;
     try {
       const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
       const jsonMatch = result.match(/\[.*?\]/s);
-      if (!jsonMatch)
-        throw new Error("Could not parse tags from response.");
+      if (!jsonMatch) throw new Error("Could not parse tags from response.");
       const suggestedTags = JSON.parse(jsonMatch[0]);
       if (!Array.isArray(suggestedTags) || suggestedTags.length === 0) {
         throw new Error("No tags returned.");
@@ -1571,14 +1544,11 @@ ${note.content.slice(0, 2e3)}`;
     this.app.vault.getMarkdownFiles().forEach((file) => {
       var _a;
       const cache = this.app.metadataCache.getFileCache(file);
-      if (cache == null ? void 0 : cache.tags)
-        cache.tags.forEach((t) => tags.add(t.tag.replace("#", "")));
+      if (cache == null ? void 0 : cache.tags) cache.tags.forEach((t) => tags.add(t.tag.replace("#", "")));
       if ((_a = cache == null ? void 0 : cache.frontmatter) == null ? void 0 : _a.tags) {
         const ft = cache.frontmatter.tags;
-        if (Array.isArray(ft))
-          ft.forEach((t) => tags.add(t));
-        else if (typeof ft === "string")
-          tags.add(ft);
+        if (Array.isArray(ft)) ft.forEach((t) => tags.add(t));
+        else if (typeof ft === "string") tags.add(ft);
       }
     });
     return Array.from(tags).sort();
@@ -1597,10 +1567,8 @@ ${note.content.slice(0, 2e3)}`;
           cls: selected.has(tag) ? "dv-tag-chip dv-tag-chip-selected" : "dv-tag-chip"
         });
         chip.onclick = () => {
-          if (selected.has(tag))
-            selected.delete(tag);
-          else
-            selected.add(tag);
+          if (selected.has(tag)) selected.delete(tag);
+          else selected.add(tag);
           renderTags();
           updateButtons();
         };
@@ -1653,8 +1621,7 @@ ${note.content.slice(0, 2e3)}`;
               if (existing.startsWith("[")) {
                 const arr = existing.slice(1, -1).split(",").map((t) => t.trim()).filter(Boolean);
                 tags.forEach((t) => {
-                  if (!arr.includes(t))
-                    arr.push(t);
+                  if (!arr.includes(t)) arr.push(t);
                 });
                 return `tags: [${arr.join(", ")}]`;
               } else {
@@ -1766,9 +1733,9 @@ ${noteChunks.join("\n\n---\n\n")}`;
       this.chatHistory.push({
         role: "user",
         content: `[Daily Digest] Last ${days} day${days > 1 ? "s" : ""} \u2014 ${filesToDigest.length} notes`,
-        timestamp: new Date()
+        timestamp: /* @__PURE__ */ new Date()
       });
-      this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
+      this.chatHistory.push({ role: "assistant", content: result, timestamp: /* @__PURE__ */ new Date() });
     } catch (err) {
       digestResponseEl.empty();
       digestResponseEl.createEl("p", { text: `\u274C ${err.message}`, cls: "dv-error" });
@@ -1783,10 +1750,10 @@ ${noteChunks.join("\n\n---\n\n")}`;
       new import_obsidian4.Notice("No digest to export.");
       return;
     }
-    const dateStr = formatDate(new Date());
+    const dateStr = formatDate(/* @__PURE__ */ new Date());
     const label = days === 1 ? "Daily" : days === 7 ? "Weekly" : "Monthly";
     const content = `---
-created: ${new Date().toISOString()}
+created: ${(/* @__PURE__ */ new Date()).toISOString()}
 source: Deep Vault
 type: Research Digest
 period: Last ${days} day${days > 1 ? "s" : ""}
@@ -1807,14 +1774,13 @@ ${result}
     const thinkingWrap = this.addChatBubble("assistant", "...");
     if (useWeb) {
       const statusMsg = thinkingWrap.querySelector(".dv-thinking");
-      if (statusMsg)
-        statusMsg.textContent = "\u{1F310} Searching the web...";
+      if (statusMsg) statusMsg.textContent = "\u{1F310} Searching the web...";
     }
     try {
       const result = await callClaude(this.plugin.settings, messages, useWeb);
       thinkingWrap.remove();
       this.addChatBubble("assistant", result);
-      this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
+      this.chatHistory.push({ role: "assistant", content: result, timestamp: /* @__PURE__ */ new Date() });
     } catch (err) {
       thinkingWrap.remove();
       this.addChatBubble("assistant", `\u274C Error: ${err.message}`);
@@ -1847,8 +1813,7 @@ var DeepVaultPlugin = class extends import_obsidian5.Plugin {
           var _a;
           await this.activateView();
           const view = (_a = this.app.workspace.getLeavesOfType(DEEP_VAULT_VIEW)[0]) == null ? void 0 : _a.view;
-          if (view)
-            view.switchTabPublic(cmd.tab);
+          if (view) view.switchTabPublic(cmd.tab);
         }
       });
     }
@@ -1895,8 +1860,7 @@ var DeepVaultPlugin = class extends import_obsidian5.Plugin {
         var _a;
         await this.activateView();
         const view = (_a = this.app.workspace.getLeavesOfType(DEEP_VAULT_VIEW)[0]) == null ? void 0 : _a.view;
-        if (view)
-          view.switchTabPublic("search");
+        if (view) view.switchTabPublic("search");
       }
     });
     this.addCommand({
