@@ -11,10 +11,10 @@ import {
   WorkspaceLeaf,
   TFile,
   SuggestModal,
-  requestUrl,
   Platform,
 } from "obsidian";
 import { formatTime, formatDate, slugify } from "./utils/helpers";
+import { callClaude } from "./api/claude";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -658,7 +658,7 @@ class DeepVaultView extends ItemView {
     }
 
     try {
-      const result = await this.callClaude([{ role: "user", content: prompts[action] }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompts[action] }], false);
       synthResponseEl.empty();
       renderMarkdown(synthResponseEl, result);
       (this as any)._lastSynthResponse = result;
@@ -784,7 +784,7 @@ class DeepVaultView extends ItemView {
     }
 
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
       this.responseEl.empty();
       renderMarkdown(this.responseEl, result);
       this.lastResponse = result;
@@ -982,7 +982,7 @@ If the notes don't contain enough information to answer the query, say so clearl
 ${noteChunks.join("\n\n---\n\n")}`;
 
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
 
       // Show results
       resultsEl.empty();
@@ -1291,7 +1291,7 @@ ${content}
     }
 
     try {
-      const result = await this.callClaude([{ role: "user", content: prompts[action] }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompts[action] }], false);
       this.responseEl.empty();
       renderMarkdown(this.responseEl, result);
       this.lastResponse = result;
@@ -1341,7 +1341,7 @@ Note to analyse:
 ${note.content.slice(0, 2000)}`;
 
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
 
       // Parse the JSON tag array from Claude's response
       const jsonMatch = result.match(/\[.*?\]/s);
@@ -1574,7 +1574,7 @@ Here are the notes:
 ${noteChunks.join("\n\n---\n\n")}`;
 
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
 
       digestResponseEl.empty();
       renderMarkdown(digestResponseEl, result);
@@ -1634,7 +1634,7 @@ ${result}
     }
 
     try {
-      const result = await this.callClaude(messages, useWeb);
+      const result = await callClaude(this.plugin.settings, messages, useWeb);
       thinkingWrap.remove();
       this.addChatBubble("assistant", result);
       this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
@@ -1642,48 +1642,6 @@ ${result}
       thinkingWrap.remove();
       this.addChatBubble("assistant", `❌ Error: ${err.message}`);
     }
-  }
-
-  private async callClaude(
-    messages: { role: string; content: string }[],
-    useWeb: boolean
-  ): Promise<string> {
-    const body: any = {
-      model: this.plugin.settings.model,
-      max_tokens: this.plugin.settings.maxTokens,
-      system: "You are Deep Vault, an expert research assistant embedded in Obsidian. Help researchers analyze notes, extract insights, identify knowledge gaps, find connections, and synthesize ideas. Be concise, structured, and use markdown formatting. Use bullet points and headers to organize responses clearly.",
-      messages,
-    };
-
-    if (useWeb && this.plugin.settings.enableWebSearch) {
-      body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-    }
-
-    // requestUrl is Obsidian's built-in HTTP client — works on desktop and mobile.
-    // Native fetch() fails in Obsidian's Electron/Capacitor environment.
-    const response = await requestUrl({
-      url: "https://api.anthropic.com/v1/messages",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": this.plugin.settings.apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-beta": "web-search-2025-03-05",
-      },
-      body: JSON.stringify(body),
-      throw: false,
-    });
-
-    if (response.status !== 200) {
-      const err = response.json;
-      throw new Error(err?.error?.message ?? `API error ${response.status}`);
-    }
-
-    const data = response.json;
-    return data.content
-      .filter((b: any) => b.type === "text")
-      .map((b: any) => b.text)
-      .join("\n") || "No response received.";
   }
 
   async onClose() { }
