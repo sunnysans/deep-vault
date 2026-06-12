@@ -28,7 +28,7 @@ __export(main_exports, {
   default: () => DeepVaultPlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian = require("obsidian");
+var import_obsidian2 = require("obsidian");
 
 // src/utils/helpers.ts
 function formatTime(date) {
@@ -36,6 +36,40 @@ function formatTime(date) {
 }
 function formatDate(date) {
   return date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+}
+
+// src/api/claude.ts
+var import_obsidian = require("obsidian");
+var SYSTEM_PROMPT = "You are Deep Vault, an expert research assistant embedded in Obsidian. Help researchers analyze notes, extract insights, identify knowledge gaps, find connections, and synthesize ideas. Be concise, structured, and use markdown formatting. Use bullet points and headers to organize responses clearly.";
+async function callClaude(settings, messages, useWeb) {
+  var _a, _b;
+  const body = {
+    model: settings.model,
+    max_tokens: settings.maxTokens,
+    system: SYSTEM_PROMPT,
+    messages
+  };
+  if (useWeb && settings.enableWebSearch) {
+    body.tools = [{ type: "web_search_20250305", name: "web_search" }];
+  }
+  const response = await (0, import_obsidian.requestUrl)({
+    url: "https://api.anthropic.com/v1/messages",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": settings.apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-beta": "web-search-2025-03-05"
+    },
+    body: JSON.stringify(body),
+    throw: false
+  });
+  if (response.status !== 200) {
+    const err = response.json;
+    throw new Error((_b = (_a = err == null ? void 0 : err.error) == null ? void 0 : _a.message) != null ? _b : `API error ${response.status}`);
+  }
+  const data = response.json;
+  return data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n") || "No response received.";
 }
 
 // src/main.ts
@@ -163,7 +197,7 @@ function renderMarkdown(container, text) {
     }
   }
 }
-var NoteSuggestModal = class extends import_obsidian.SuggestModal {
+var NoteSuggestModal = class extends import_obsidian2.SuggestModal {
   constructor(app, files, onSelect) {
     super(app);
     this.selected = [];
@@ -187,10 +221,10 @@ var NoteSuggestModal = class extends import_obsidian.SuggestModal {
   onChooseSuggestion(file, _evt) {
     if (!this.selected.includes(file)) {
       this.selected.push(file);
-      new import_obsidian.Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
+      new import_obsidian2.Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
     } else {
       this.selected = this.selected.filter((f) => f !== file);
-      new import_obsidian.Notice(`Removed: ${file.basename}`);
+      new import_obsidian2.Notice(`Removed: ${file.basename}`);
     }
     this.onSelect(this.selected);
   }
@@ -199,7 +233,7 @@ var NoteSuggestModal = class extends import_obsidian.SuggestModal {
     this.inputEl.dispatchEvent(new Event("input"));
   }
 };
-var DeepVaultView = class extends import_obsidian.ItemView {
+var DeepVaultView = class extends import_obsidian2.ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.chatHistory = [];
@@ -395,7 +429,7 @@ var DeepVaultView = class extends import_obsidian.ItemView {
         this.chatInputEl.value = `Based on my note "${note.title}": `;
         this.chatInputEl.focus();
       } else
-        new import_obsidian.Notice("Open a note first.");
+        new import_obsidian2.Notice("Open a note first.");
     };
     const webBtn = inputFooter.createEl("button", { text: "\u{1F310} Web", cls: "dv-btn-ghost dv-web-toggle" });
     webBtn.title = "Toggle web search for this query";
@@ -473,7 +507,7 @@ ${input}` : input;
   clearChat() {
     this.chatHistory = [];
     this.renderWelcomeMessage();
-    new import_obsidian.Notice("Chat cleared.");
+    new import_obsidian2.Notice("Chat cleared.");
   }
   // ─── Synthesis Panel (v2.1) ───────────────────────────────────────────────
   buildPanelSynthesis(root) {
@@ -546,7 +580,7 @@ ${input}` : input;
   async runSynthesis(action) {
     const notes = this._selectedNotes;
     if (notes.length < 2) {
-      new import_obsidian.Notice("Please select at least 2 notes to synthesize.");
+      new import_obsidian2.Notice("Please select at least 2 notes to synthesize.");
       return;
     }
     const synthResponseEl = this._synthResponseEl;
@@ -582,7 +616,7 @@ ${combinedNotes}`
       return;
     }
     try {
-      const result = await this.callClaude([{ role: "user", content: prompts[action] }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompts[action] }], false);
       synthResponseEl.empty();
       renderMarkdown(synthResponseEl, result);
       this._lastSynthResponse = result;
@@ -642,7 +676,7 @@ ${combinedNotes}`
       this.plugin.settings.templates = this.plugin.settings.templates.filter((t) => t.id !== tpl.id);
       await this.plugin.saveSettings();
       this.renderTemplates();
-      new import_obsidian.Notice(`Template "${tpl.name}" deleted.`);
+      new import_obsidian2.Notice(`Template "${tpl.name}" deleted.`);
     };
   }
   openTemplateEditor(existing) {
@@ -656,14 +690,14 @@ ${combinedNotes}`
       }
       await this.plugin.saveSettings();
       this.renderTemplates();
-      new import_obsidian.Notice(`Template "${tpl.name}" ${existing ? "updated" : "created"}!`);
+      new import_obsidian2.Notice(`Template "${tpl.name}" ${existing ? "updated" : "created"}!`);
     }).open();
   }
   async runTemplate(tpl) {
     var _a, _b;
     const note = this.getCurrentNote();
     if (tpl.useNoteContext && !note) {
-      new import_obsidian.Notice("This template needs an open note. Please open a note first.");
+      new import_obsidian2.Notice("This template needs an open note. Please open a note first.");
       return;
     }
     this.switchTab("research");
@@ -683,7 +717,7 @@ ${note.content.slice(0, 3e3)}` : tpl.prompt;
       return;
     }
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
       this.responseEl.empty();
       renderMarkdown(this.responseEl, result);
       this.lastResponse = result;
@@ -753,7 +787,7 @@ ${note.content.slice(0, 3e3)}` : tpl.prompt;
     const runSearch = () => {
       const query = searchInput.value.trim();
       if (!query) {
-        new import_obsidian.Notice("Please enter a search query.");
+        new import_obsidian2.Notice("Please enter a search query.");
         return;
       }
       const folder = folderInput.value.trim();
@@ -843,7 +877,7 @@ If the notes don't contain enough information to answer the query, say so clearl
 
 ${noteChunks.join("\n\n---\n\n")}`;
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
       resultsEl.empty();
       renderMarkdown(resultsEl, result);
       this._lastSearchResult = result;
@@ -891,11 +925,11 @@ ${noteChunks.join("\n\n---\n\n")}`;
     if (!hotkeys || hotkeys.length === 0)
       return null;
     const modifierLabels = {
-      Mod: import_obsidian.Platform.isMacOS ? "Cmd" : "Ctrl",
+      Mod: import_obsidian2.Platform.isMacOS ? "Cmd" : "Ctrl",
       Ctrl: "Ctrl",
-      Meta: import_obsidian.Platform.isMacOS ? "Cmd" : "Win",
+      Meta: import_obsidian2.Platform.isMacOS ? "Cmd" : "Win",
       Shift: "Shift",
-      Alt: import_obsidian.Platform.isMacOS ? "Option" : "Alt"
+      Alt: import_obsidian2.Platform.isMacOS ? "Option" : "Alt"
     };
     return hotkeys.map(
       (hk) => [...hk.modifiers.map((m) => {
@@ -979,13 +1013,13 @@ ${noteChunks.join("\n\n---\n\n")}`;
     clearBtn.onclick = () => {
       this.chatHistory = [];
       this.renderHistory();
-      new import_obsidian.Notice("History cleared.");
+      new import_obsidian2.Notice("History cleared.");
     };
   }
   // ─── Export to Note (v2.2) ────────────────────────────────────────────────
   async exportToNote(content, label) {
     if (!content.trim()) {
-      new import_obsidian.Notice("Nothing to export.");
+      new import_obsidian2.Notice("Nothing to export.");
       return;
     }
     const folder = this.plugin.settings.exportFolder;
@@ -1010,19 +1044,19 @@ ${content}
         await this.app.vault.createFolder(folder);
       }
       await this.app.vault.create(filename, noteContent);
-      new import_obsidian.Notice(`\u2705 Saved to "${filename}"`);
+      new import_obsidian2.Notice(`\u2705 Saved to "${filename}"`);
       const file = this.app.vault.getAbstractFileByPath(filename);
       if (file) {
         const leaf = this.app.workspace.getLeaf(true);
         await leaf.openFile(file);
       }
     } catch (err) {
-      new import_obsidian.Notice(`\u274C Export failed: ${err.message}`);
+      new import_obsidian2.Notice(`\u274C Export failed: ${err.message}`);
     }
   }
   async exportHistoryToNote() {
     if (this.chatHistory.length === 0) {
-      new import_obsidian.Notice("No history to export.");
+      new import_obsidian2.Notice("No history to export.");
       return;
     }
     const lines = [
@@ -1049,7 +1083,7 @@ ${content}
   }
   // ─── API Calls ────────────────────────────────────────────────────────────
   getCurrentNote() {
-    const active = this.app.workspace.getActiveViewOfType(import_obsidian.MarkdownView);
+    const active = this.app.workspace.getActiveViewOfType(import_obsidian2.MarkdownView);
     if (active == null ? void 0 : active.file)
       return { content: active.editor.getValue(), title: active.file.basename };
     const leaves = this.app.workspace.getLeavesOfType("markdown");
@@ -1061,7 +1095,7 @@ ${content}
     return null;
   }
   getCurrentFile() {
-    const active = this.app.workspace.getActiveViewOfType(import_obsidian.MarkdownView);
+    const active = this.app.workspace.getActiveViewOfType(import_obsidian2.MarkdownView);
     if (active == null ? void 0 : active.file)
       return active.file;
     const leaves = this.app.workspace.getLeavesOfType("markdown");
@@ -1081,7 +1115,7 @@ ${content}
     var _a, _b;
     const note = this.getCurrentNote();
     if (!note) {
-      new import_obsidian.Notice("Please open a note first.");
+      new import_obsidian2.Notice("Please open a note first.");
       return;
     }
     if (action === "autotag") {
@@ -1139,7 +1173,7 @@ ${note.content}`
       return;
     }
     try {
-      const result = await this.callClaude([{ role: "user", content: prompts[action] }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompts[action] }], false);
       this.responseEl.empty();
       renderMarkdown(this.responseEl, result);
       this.lastResponse = result;
@@ -1181,7 +1215,7 @@ Note to analyse:
 
 ${note.content.slice(0, 2e3)}`;
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
       const jsonMatch = result.match(/\[.*?\]/s);
       if (!jsonMatch)
         throw new Error("Could not parse tags from response.");
@@ -1262,12 +1296,12 @@ ${note.content.slice(0, 2e3)}`;
   }
   async applyTagsToNote(tags, note) {
     if (tags.length === 0) {
-      new import_obsidian.Notice("No tags selected.");
+      new import_obsidian2.Notice("No tags selected.");
       return;
     }
     const file = this.getCurrentFile();
     if (!file) {
-      new import_obsidian.Notice("Could not find the active note.");
+      new import_obsidian2.Notice("Could not find the active note.");
       return;
     }
     let content = await this.app.vault.read(file);
@@ -1314,7 +1348,7 @@ ${tagLines}
 ` + content;
     }
     await this.app.vault.modify(file, content);
-    new import_obsidian.Notice(`\u2705 Applied ${tags.length} tag${tags.length !== 1 ? "s" : ""} to "${note.title}"`);
+    new import_obsidian2.Notice(`\u2705 Applied ${tags.length} tag${tags.length !== 1 ? "s" : ""} to "${note.title}"`);
     this.responseEl.empty();
     this.responseEl.createEl("p", { text: "\u2705 Tags Applied!", cls: "dv-autotag-title" });
     const appliedGrid = this.responseEl.createDiv("dv-tag-grid");
@@ -1388,7 +1422,7 @@ Here are the notes:
 
 ${noteChunks.join("\n\n---\n\n")}`;
     try {
-      const result = await this.callClaude([{ role: "user", content: prompt }], false);
+      const result = await callClaude(this.plugin.settings, [{ role: "user", content: prompt }], false);
       digestResponseEl.empty();
       renderMarkdown(digestResponseEl, result);
       this._lastDigestResult = result;
@@ -1412,7 +1446,7 @@ ${noteChunks.join("\n\n---\n\n")}`;
     const days = this._lastDigestDays;
     const count = this._lastDigestCount;
     if (!result) {
-      new import_obsidian.Notice("No digest to export.");
+      new import_obsidian2.Notice("No digest to export.");
       return;
     }
     const dateStr = formatDate(new Date());
@@ -1443,7 +1477,7 @@ ${result}
         statusMsg.textContent = "\u{1F310} Searching the web...";
     }
     try {
-      const result = await this.callClaude(messages, useWeb);
+      const result = await callClaude(this.plugin.settings, messages, useWeb);
       thinkingWrap.remove();
       this.addChatBubble("assistant", result);
       this.chatHistory.push({ role: "assistant", content: result, timestamp: new Date() });
@@ -1452,40 +1486,10 @@ ${result}
       this.addChatBubble("assistant", `\u274C Error: ${err.message}`);
     }
   }
-  async callClaude(messages, useWeb) {
-    var _a, _b;
-    const body = {
-      model: this.plugin.settings.model,
-      max_tokens: this.plugin.settings.maxTokens,
-      system: "You are Deep Vault, an expert research assistant embedded in Obsidian. Help researchers analyze notes, extract insights, identify knowledge gaps, find connections, and synthesize ideas. Be concise, structured, and use markdown formatting. Use bullet points and headers to organize responses clearly.",
-      messages
-    };
-    if (useWeb && this.plugin.settings.enableWebSearch) {
-      body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-    }
-    const response = await (0, import_obsidian.requestUrl)({
-      url: "https://api.anthropic.com/v1/messages",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": this.plugin.settings.apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-beta": "web-search-2025-03-05"
-      },
-      body: JSON.stringify(body),
-      throw: false
-    });
-    if (response.status !== 200) {
-      const err = response.json;
-      throw new Error((_b = (_a = err == null ? void 0 : err.error) == null ? void 0 : _a.message) != null ? _b : `API error ${response.status}`);
-    }
-    const data = response.json;
-    return data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n") || "No response received.";
-  }
   async onClose() {
   }
 };
-var TemplateEditorModal = class extends import_obsidian.Modal {
+var TemplateEditorModal = class extends import_obsidian2.Modal {
   constructor(app, existing, onSave) {
     super(app);
     this.existing = existing;
@@ -1544,11 +1548,11 @@ var TemplateEditorModal = class extends import_obsidian.Modal {
       const name = nameInput.value.trim();
       const prompt = promptInput.value.trim();
       if (!name) {
-        new import_obsidian.Notice("Please enter a template name.");
+        new import_obsidian2.Notice("Please enter a template name.");
         return;
       }
       if (!prompt) {
-        new import_obsidian.Notice("Please enter a prompt.");
+        new import_obsidian2.Notice("Please enter a prompt.");
         return;
       }
       const tpl = {
@@ -1567,7 +1571,7 @@ var TemplateEditorModal = class extends import_obsidian.Modal {
     this.contentEl.empty();
   }
 };
-var DeepVaultPlugin = class extends import_obsidian.Plugin {
+var DeepVaultPlugin = class extends import_obsidian2.Plugin {
   async onload() {
     await this.loadSettings();
     this.registerView(DEEP_VAULT_VIEW, (leaf) => new DeepVaultView(leaf, this));
@@ -1673,7 +1677,7 @@ var DeepVaultPlugin = class extends import_obsidian.Plugin {
     await this.saveData(this.settings);
   }
 };
-var SetupWizardModal = class extends import_obsidian.Modal {
+var SetupWizardModal = class extends import_obsidian2.Modal {
   constructor(app, plugin) {
     super(app);
     this.step = 0;
@@ -1718,7 +1722,7 @@ var SetupWizardModal = class extends import_obsidian.Modal {
           btn.onclick = async () => {
             const key = keyInput.value.trim();
             if (!key.startsWith("sk-ant-") && key.length > 0) {
-              new import_obsidian.Notice("That doesn't look like a valid Anthropic API key.");
+              new import_obsidian2.Notice("That doesn't look like a valid Anthropic API key.");
               return;
             }
             plugin.settings.apiKey = key;
@@ -1862,7 +1866,7 @@ var SetupWizardModal = class extends import_obsidian.Modal {
     this.contentEl.empty();
   }
 };
-var DeepVaultSettingTab = class extends import_obsidian.PluginSettingTab {
+var DeepVaultSettingTab = class extends import_obsidian2.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -1871,23 +1875,23 @@ var DeepVaultSettingTab = class extends import_obsidian.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "\u{1F50D} Deep Vault Settings" });
-    new import_obsidian.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
       this.plugin.settings.apiKey = value.trim();
       await this.plugin.saveSettings();
     }));
-    new import_obsidian.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
       this.plugin.settings.model = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
       this.plugin.settings.maxTokens = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
       this.plugin.settings.enableWebSearch = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
       this.plugin.settings.exportFolder = value || "Deep Vault Exports";
       await this.plugin.saveSettings();
     }));
@@ -1909,7 +1913,7 @@ var DeepVaultSettingTab = class extends import_obsidian.PluginSettingTab {
     resetBtn.onclick = async () => {
       this.plugin.settings.templates = DEFAULT_TEMPLATES;
       await this.plugin.saveSettings();
-      new import_obsidian.Notice("Templates reset to defaults.");
+      new import_obsidian2.Notice("Templates reset to defaults.");
       this.display();
     };
   }
