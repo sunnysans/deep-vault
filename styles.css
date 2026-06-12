@@ -79,6 +79,11 @@
 
 .dv-tab {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   padding: 9px 4px;
   text-align: center;
   font-size: 11.5px;
@@ -1558,7 +1563,6 @@
 
 .dv-tab-label {
   font-size: 11px;
-  margin-left: 3px;
 }
 
 /* ─── Mobile Base ────────────────────────────── */
