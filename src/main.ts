@@ -220,6 +220,8 @@ class DeepVaultView extends ItemView {
   private panelTemplates: HTMLElement;
   private panelSearch: HTMLElement;
   private panelHistory: HTMLElement;
+  private panelHistoryTop: HTMLElement;
+  private panelHistoryBottom: HTMLElement;
   private chatMessagesEl: HTMLElement;
   private chatInputEl: HTMLTextAreaElement;
   private statusEl: HTMLElement;
@@ -1029,10 +1031,12 @@ ${noteChunks.join("\n\n---\n\n")}`;
 
   private buildPanelHistory(root: HTMLElement) {
     this.panelHistory = root.createDiv("dv-panel");
+    this.panelHistoryTop = this.panelHistory.createDiv("dv-panel-history-top");
+    this.panelHistoryBottom = this.panelHistory.createDiv("dv-panel-history-bottom");
   }
 
   private renderHotkeys() {
-    const panel = this.panelHistory;
+    const panel = this.panelHistoryTop;
     panel.empty();
 
     panel.createEl("p", { text: "KEYBOARD SHORTCUTS", cls: "dv-section-label" });
@@ -1083,11 +1087,11 @@ ${noteChunks.join("\n\n---\n\n")}`;
   }
 
   private renderHistory() {
-    this.panelHistory.empty();
-    this.panelHistory.createEl("p", { text: "SESSION HISTORY", cls: "dv-section-label" });
+    this.panelHistoryBottom.empty();
+    this.panelHistoryBottom.createEl("p", { text: "SESSION HISTORY", cls: "dv-section-label" });
 
     if (this.chatHistory.length === 0) {
-      const empty = this.panelHistory.createDiv("dv-empty-state");
+      const empty = this.panelHistoryBottom.createDiv("dv-empty-state");
       empty.createEl("p", { text: "📭", cls: "dv-empty-icon" });
       empty.createEl("p", { text: "No history yet", cls: "dv-empty-title" });
       empty.createEl("p", { text: "Start a conversation in Chat or run a Quick Action", cls: "dv-empty-desc" });
@@ -1095,10 +1099,10 @@ ${noteChunks.join("\n\n---\n\n")}`;
     }
 
     // Export all history button
-    const exportAllBtn = this.panelHistory.createEl("button", { text: "💾 Export Full History as Note", cls: "dv-btn-export" });
+    const exportAllBtn = this.panelHistoryBottom.createEl("button", { text: "💾 Export Full History as Note", cls: "dv-btn-export" });
     exportAllBtn.onclick = () => this.exportHistoryToNote();
 
-    const list = this.panelHistory.createDiv("dv-history-list");
+    const list = this.panelHistoryBottom.createDiv("dv-history-list");
     for (const msg of [...this.chatHistory].reverse()) {
       const item = list.createDiv(`dv-history-item dv-history-${msg.role}`);
       const itemHeader = item.createDiv("dv-history-item-header");
@@ -1112,7 +1116,7 @@ ${noteChunks.join("\n\n---\n\n")}`;
       saveBtn.onclick = () => this.exportToNote(msg.content, msg.role === "user" ? "My Question" : "Claude Response");
     }
 
-    const clearBtn = this.panelHistory.createEl("button", { text: "🗑 Clear All History", cls: "dv-btn-danger" });
+    const clearBtn = this.panelHistoryBottom.createEl("button", { text: "🗑 Clear All History", cls: "dv-btn-danger" });
     clearBtn.onclick = () => { this.chatHistory = []; this.renderHistory(); new Notice("History cleared."); };
   }
 
