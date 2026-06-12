@@ -16,14 +16,14 @@
 
 ---
 
-## 🔴 P0 — Release Blockers (v4.0.x)
+## 🔴 P0 — Release Blockers (v4.2.x)
 
 These block the GitHub Release from being published. Do not push the tag until all are checked.
-Release is now automated — push tag `v4.0.x` (current: `4.0.5`) and `.github/workflows/release.yml` handles the rest.
+Release is now automated — push tag `v4.2.x` (current: `4.2.4`) and `.github/workflows/release.yml` handles the rest.
 
 | # | Item | Detail | Done |
 |---|---|---|:---:|
-| P0-01 | Publish GitHub Release v4.0.5 | Push tag `v4.0.5` — release workflow auto-builds and attaches assets | `[ ]` |
+| P0-01 | Publish GitHub Release v4.2.4 | Push tag `v4.2.4` — release workflow auto-builds and attaches assets | `[ ]` |
 | P0-02 | Execute manual regression (TC-01 → TC-09) | Windows desktop pass complete 2026-06-12 — TC-01–07, TC-09 pass (3 bugs found & fixed as v4.0.3/4.0.4/4.0.5). TC-08 (mobile) deferred to P0-04 | `[~]` |
 | P0-03 | Test on Linux (Obsidian desktop) | Verified via `build.sh` deploy | `[ ]` |
 | P0-04 | Test on Obsidian Mobile (iOS or Android) | Swipe, touch targets, safe-area spacing — also covers TC-08 | `[ ]` |
