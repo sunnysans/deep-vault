@@ -28,7 +28,7 @@ __export(main_exports, {
   default: () => DeepVaultPlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian3 = require("obsidian");
+var import_obsidian4 = require("obsidian");
 
 // src/utils/helpers.ts
 function formatTime(date) {
@@ -445,6 +445,61 @@ var SetupWizardModal = class extends import_obsidian2.Modal {
   }
 };
 
+// src/settings.ts
+var import_obsidian3 = require("obsidian");
+var DeepVaultSettingTab = class extends import_obsidian3.PluginSettingTab {
+  constructor(app, plugin) {
+    super(app, plugin);
+    this.plugin = plugin;
+  }
+  display() {
+    const { containerEl } = this;
+    containerEl.empty();
+    containerEl.createEl("h2", { text: "\u{1F50D} Deep Vault Settings" });
+    new import_obsidian3.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
+      this.plugin.settings.apiKey = value.trim();
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
+      this.plugin.settings.model = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
+      this.plugin.settings.maxTokens = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
+      this.plugin.settings.enableWebSearch = value;
+      await this.plugin.saveSettings();
+    }));
+    new import_obsidian3.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
+      this.plugin.settings.exportFolder = value || "Deep Vault Exports";
+      await this.plugin.saveSettings();
+    }));
+    containerEl.createEl("h3", { text: "What's New in v3.0" });
+    const ul = containerEl.createEl("ul");
+    ul.createEl("li", { text: "\u{1F4DD} Custom Templates \u2014 save and reuse your own prompts" });
+    ul.createEl("li", { text: "\u{1F517} Synthesis tab \u2014 combine & compare multiple notes" });
+    ul.createEl("li", { text: "\u{1F4BE} Export any response directly as a new Obsidian note" });
+    ul.createEl("li", { text: "\u{1F310} Web search \u2014 Claude can search the internet from Chat" });
+    ul.createEl("li", { text: "\u{1F4CB} History export \u2014 save your entire session as a note" });
+    containerEl.createEl("h3", { text: "Prompt Templates" });
+    const tplCount = this.plugin.settings.templates.length;
+    containerEl.createEl("p", {
+      text: `You have ${tplCount} template${tplCount !== 1 ? "s" : ""}. Manage them from the \u{1F4DD} Templates tab in the Deep Vault panel.`,
+      cls: "setting-item-description"
+    });
+    const resetBtn = containerEl.createEl("button", { text: "Reset to Default Templates", cls: "mod-warning" });
+    resetBtn.style.marginTop = "8px";
+    resetBtn.onclick = async () => {
+      this.plugin.settings.templates = DEFAULT_TEMPLATES;
+      await this.plugin.saveSettings();
+      new import_obsidian3.Notice("Templates reset to defaults.");
+      this.display();
+    };
+  }
+};
+
 // src/main.ts
 function renderMarkdown(container, text) {
   container.empty();
@@ -509,7 +564,7 @@ function renderMarkdown(container, text) {
     }
   }
 }
-var DeepVaultView = class extends import_obsidian3.ItemView {
+var DeepVaultView = class extends import_obsidian4.ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.chatHistory = [];
@@ -705,7 +760,7 @@ var DeepVaultView = class extends import_obsidian3.ItemView {
         this.chatInputEl.value = `Based on my note "${note.title}": `;
         this.chatInputEl.focus();
       } else
-        new import_obsidian3.Notice("Open a note first.");
+        new import_obsidian4.Notice("Open a note first.");
     };
     const webBtn = inputFooter.createEl("button", { text: "\u{1F310} Web", cls: "dv-btn-ghost dv-web-toggle" });
     webBtn.title = "Toggle web search for this query";
@@ -783,7 +838,7 @@ ${input}` : input;
   clearChat() {
     this.chatHistory = [];
     this.renderWelcomeMessage();
-    new import_obsidian3.Notice("Chat cleared.");
+    new import_obsidian4.Notice("Chat cleared.");
   }
   // ─── Synthesis Panel (v2.1) ───────────────────────────────────────────────
   buildPanelSynthesis(root) {
@@ -856,7 +911,7 @@ ${input}` : input;
   async runSynthesis(action) {
     const notes = this._selectedNotes;
     if (notes.length < 2) {
-      new import_obsidian3.Notice("Please select at least 2 notes to synthesize.");
+      new import_obsidian4.Notice("Please select at least 2 notes to synthesize.");
       return;
     }
     const synthResponseEl = this._synthResponseEl;
@@ -952,7 +1007,7 @@ ${combinedNotes}`
       this.plugin.settings.templates = this.plugin.settings.templates.filter((t) => t.id !== tpl.id);
       await this.plugin.saveSettings();
       this.renderTemplates();
-      new import_obsidian3.Notice(`Template "${tpl.name}" deleted.`);
+      new import_obsidian4.Notice(`Template "${tpl.name}" deleted.`);
     };
   }
   openTemplateEditor(existing) {
@@ -966,14 +1021,14 @@ ${combinedNotes}`
       }
       await this.plugin.saveSettings();
       this.renderTemplates();
-      new import_obsidian3.Notice(`Template "${tpl.name}" ${existing ? "updated" : "created"}!`);
+      new import_obsidian4.Notice(`Template "${tpl.name}" ${existing ? "updated" : "created"}!`);
     }).open();
   }
   async runTemplate(tpl) {
     var _a, _b;
     const note = this.getCurrentNote();
     if (tpl.useNoteContext && !note) {
-      new import_obsidian3.Notice("This template needs an open note. Please open a note first.");
+      new import_obsidian4.Notice("This template needs an open note. Please open a note first.");
       return;
     }
     this.switchTab("research");
@@ -1063,7 +1118,7 @@ ${note.content.slice(0, 3e3)}` : tpl.prompt;
     const runSearch = () => {
       const query = searchInput.value.trim();
       if (!query) {
-        new import_obsidian3.Notice("Please enter a search query.");
+        new import_obsidian4.Notice("Please enter a search query.");
         return;
       }
       const folder = folderInput.value.trim();
@@ -1201,11 +1256,11 @@ ${noteChunks.join("\n\n---\n\n")}`;
     if (!hotkeys || hotkeys.length === 0)
       return null;
     const modifierLabels = {
-      Mod: import_obsidian3.Platform.isMacOS ? "Cmd" : "Ctrl",
+      Mod: import_obsidian4.Platform.isMacOS ? "Cmd" : "Ctrl",
       Ctrl: "Ctrl",
-      Meta: import_obsidian3.Platform.isMacOS ? "Cmd" : "Win",
+      Meta: import_obsidian4.Platform.isMacOS ? "Cmd" : "Win",
       Shift: "Shift",
-      Alt: import_obsidian3.Platform.isMacOS ? "Option" : "Alt"
+      Alt: import_obsidian4.Platform.isMacOS ? "Option" : "Alt"
     };
     return hotkeys.map(
       (hk) => [...hk.modifiers.map((m) => {
@@ -1289,13 +1344,13 @@ ${noteChunks.join("\n\n---\n\n")}`;
     clearBtn.onclick = () => {
       this.chatHistory = [];
       this.renderHistory();
-      new import_obsidian3.Notice("History cleared.");
+      new import_obsidian4.Notice("History cleared.");
     };
   }
   // ─── Export to Note (v2.2) ────────────────────────────────────────────────
   async exportToNote(content, label) {
     if (!content.trim()) {
-      new import_obsidian3.Notice("Nothing to export.");
+      new import_obsidian4.Notice("Nothing to export.");
       return;
     }
     const folder = this.plugin.settings.exportFolder;
@@ -1320,19 +1375,19 @@ ${content}
         await this.app.vault.createFolder(folder);
       }
       await this.app.vault.create(filename, noteContent);
-      new import_obsidian3.Notice(`\u2705 Saved to "${filename}"`);
+      new import_obsidian4.Notice(`\u2705 Saved to "${filename}"`);
       const file = this.app.vault.getAbstractFileByPath(filename);
       if (file) {
         const leaf = this.app.workspace.getLeaf(true);
         await leaf.openFile(file);
       }
     } catch (err) {
-      new import_obsidian3.Notice(`\u274C Export failed: ${err.message}`);
+      new import_obsidian4.Notice(`\u274C Export failed: ${err.message}`);
     }
   }
   async exportHistoryToNote() {
     if (this.chatHistory.length === 0) {
-      new import_obsidian3.Notice("No history to export.");
+      new import_obsidian4.Notice("No history to export.");
       return;
     }
     const lines = [
@@ -1359,7 +1414,7 @@ ${content}
   }
   // ─── API Calls ────────────────────────────────────────────────────────────
   getCurrentNote() {
-    const active = this.app.workspace.getActiveViewOfType(import_obsidian3.MarkdownView);
+    const active = this.app.workspace.getActiveViewOfType(import_obsidian4.MarkdownView);
     if (active == null ? void 0 : active.file)
       return { content: active.editor.getValue(), title: active.file.basename };
     const leaves = this.app.workspace.getLeavesOfType("markdown");
@@ -1371,7 +1426,7 @@ ${content}
     return null;
   }
   getCurrentFile() {
-    const active = this.app.workspace.getActiveViewOfType(import_obsidian3.MarkdownView);
+    const active = this.app.workspace.getActiveViewOfType(import_obsidian4.MarkdownView);
     if (active == null ? void 0 : active.file)
       return active.file;
     const leaves = this.app.workspace.getLeavesOfType("markdown");
@@ -1391,7 +1446,7 @@ ${content}
     var _a, _b;
     const note = this.getCurrentNote();
     if (!note) {
-      new import_obsidian3.Notice("Please open a note first.");
+      new import_obsidian4.Notice("Please open a note first.");
       return;
     }
     if (action === "autotag") {
@@ -1572,12 +1627,12 @@ ${note.content.slice(0, 2e3)}`;
   }
   async applyTagsToNote(tags, note) {
     if (tags.length === 0) {
-      new import_obsidian3.Notice("No tags selected.");
+      new import_obsidian4.Notice("No tags selected.");
       return;
     }
     const file = this.getCurrentFile();
     if (!file) {
-      new import_obsidian3.Notice("Could not find the active note.");
+      new import_obsidian4.Notice("Could not find the active note.");
       return;
     }
     let content = await this.app.vault.read(file);
@@ -1624,7 +1679,7 @@ ${tagLines}
 ` + content;
     }
     await this.app.vault.modify(file, content);
-    new import_obsidian3.Notice(`\u2705 Applied ${tags.length} tag${tags.length !== 1 ? "s" : ""} to "${note.title}"`);
+    new import_obsidian4.Notice(`\u2705 Applied ${tags.length} tag${tags.length !== 1 ? "s" : ""} to "${note.title}"`);
     this.responseEl.empty();
     this.responseEl.createEl("p", { text: "\u2705 Tags Applied!", cls: "dv-autotag-title" });
     const appliedGrid = this.responseEl.createDiv("dv-tag-grid");
@@ -1722,7 +1777,7 @@ ${noteChunks.join("\n\n---\n\n")}`;
     const days = this._lastDigestDays;
     const count = this._lastDigestCount;
     if (!result) {
-      new import_obsidian3.Notice("No digest to export.");
+      new import_obsidian4.Notice("No digest to export.");
       return;
     }
     const dateStr = formatDate(new Date());
@@ -1765,7 +1820,7 @@ ${result}
   async onClose() {
   }
 };
-var DeepVaultPlugin = class extends import_obsidian3.Plugin {
+var DeepVaultPlugin = class extends import_obsidian4.Plugin {
   async onload() {
     await this.loadSettings();
     this.registerView(DEEP_VAULT_VIEW, (leaf) => new DeepVaultView(leaf, this));
@@ -1869,57 +1924,5 @@ var DeepVaultPlugin = class extends import_obsidian3.Plugin {
   }
   async saveSettings() {
     await this.saveData(this.settings);
-  }
-};
-var DeepVaultSettingTab = class extends import_obsidian3.PluginSettingTab {
-  constructor(app, plugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-  display() {
-    const { containerEl } = this;
-    containerEl.empty();
-    containerEl.createEl("h2", { text: "\u{1F50D} Deep Vault Settings" });
-    new import_obsidian3.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
-      this.plugin.settings.apiKey = value.trim();
-      await this.plugin.saveSettings();
-    }));
-    new import_obsidian3.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
-      this.plugin.settings.model = value;
-      await this.plugin.saveSettings();
-    }));
-    new import_obsidian3.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
-      this.plugin.settings.maxTokens = value;
-      await this.plugin.saveSettings();
-    }));
-    new import_obsidian3.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
-      this.plugin.settings.enableWebSearch = value;
-      await this.plugin.saveSettings();
-    }));
-    new import_obsidian3.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
-      this.plugin.settings.exportFolder = value || "Deep Vault Exports";
-      await this.plugin.saveSettings();
-    }));
-    containerEl.createEl("h3", { text: "What's New in v3.0" });
-    const ul = containerEl.createEl("ul");
-    ul.createEl("li", { text: "\u{1F4DD} Custom Templates \u2014 save and reuse your own prompts" });
-    ul.createEl("li", { text: "\u{1F517} Synthesis tab \u2014 combine & compare multiple notes" });
-    ul.createEl("li", { text: "\u{1F4BE} Export any response directly as a new Obsidian note" });
-    ul.createEl("li", { text: "\u{1F310} Web search \u2014 Claude can search the internet from Chat" });
-    ul.createEl("li", { text: "\u{1F4CB} History export \u2014 save your entire session as a note" });
-    containerEl.createEl("h3", { text: "Prompt Templates" });
-    const tplCount = this.plugin.settings.templates.length;
-    containerEl.createEl("p", {
-      text: `You have ${tplCount} template${tplCount !== 1 ? "s" : ""}. Manage them from the \u{1F4DD} Templates tab in the Deep Vault panel.`,
-      cls: "setting-item-description"
-    });
-    const resetBtn = containerEl.createEl("button", { text: "Reset to Default Templates", cls: "mod-warning" });
-    resetBtn.style.marginTop = "8px";
-    resetBtn.onclick = async () => {
-      this.plugin.settings.templates = DEFAULT_TEMPLATES;
-      await this.plugin.saveSettings();
-      new import_obsidian3.Notice("Templates reset to defaults.");
-      this.display();
-    };
   }
 };
