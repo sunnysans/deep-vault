@@ -12,6 +12,7 @@ import {
   TFile,
   SuggestModal,
   requestUrl,
+  Platform,
 } from "obsidian";
 import { formatTime, formatDate, slugify } from "./utils/helpers";
 
@@ -1035,6 +1036,29 @@ ${noteChunks.join("\n\n---\n\n")}`;
     this.panelHistoryBottom = this.panelHistory.createDiv("dv-panel-history-bottom");
   }
 
+  private getAssignedHotkey(commandId: string): string | null {
+    // hotkeyManager is an internal, undocumented API — not present in PluginManifest types.
+    const hotkeyManager = (this.app as any).hotkeyManager;
+    if (!hotkeyManager) return null;
+
+    const hotkeys = hotkeyManager.getHotkeys(commandId) ?? hotkeyManager.getDefaultHotkeys(commandId);
+    if (!hotkeys || hotkeys.length === 0) return null;
+
+    const modifierLabels: Record<string, string> = {
+      Mod: Platform.isMacOS ? "Cmd" : "Ctrl",
+      Ctrl: "Ctrl",
+      Meta: Platform.isMacOS ? "Cmd" : "Win",
+      Shift: "Shift",
+      Alt: Platform.isMacOS ? "Option" : "Alt",
+    };
+
+    return hotkeys
+      .map((hk: { modifiers: string[]; key: string }) =>
+        [...hk.modifiers.map(m => modifierLabels[m] ?? m), hk.key.toUpperCase()].join(" + ")
+      )
+      .join(", ");
+  }
+
   private renderHotkeys() {
     const panel = this.panelHistoryTop;
     panel.empty();
@@ -1043,21 +1067,21 @@ ${noteChunks.join("\n\n---\n\n")}`;
     panel.createEl("p", { text: "Assign hotkeys in Settings → Hotkeys → search Deep Vault", cls: "dv-hotkey-hint" });
 
     const shortcuts = [
-      { cmd: "Open Deep Vault panel", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Research tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Chat tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Synthesis tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Templates tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Search tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to History tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Summarise current note", cat: "Actions" },
-      { cmd: "Deep Vault: Generate research questions", cat: "Actions" },
-      { cmd: "Deep Vault: Extract key concepts", cat: "Actions" },
-      { cmd: "Deep Vault: Find research gaps", cat: "Actions" },
-      { cmd: "Deep Vault: Auto-tag current note", cat: "Actions" },
-      { cmd: "Deep Vault: Generate daily research digest", cat: "Digest" },
-      { cmd: "Deep Vault: Search vault", cat: "Search" },
-      { cmd: "Deep Vault: Open setup wizard", cat: "Setup" },
+      { cmd: "Open Deep Vault panel", id: "open-deep-vault", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Research tab", id: "deep-vault-tab-research", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Chat tab", id: "deep-vault-tab-chat", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Synthesis tab", id: "deep-vault-tab-synthesis", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Templates tab", id: "deep-vault-tab-templates", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Search tab", id: "deep-vault-tab-search", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to History tab", id: "deep-vault-tab-history", cat: "Navigation" },
+      { cmd: "Deep Vault: Summarise current note", id: "deep-vault-summarize", cat: "Actions" },
+      { cmd: "Deep Vault: Generate research questions", id: "deep-vault-questions", cat: "Actions" },
+      { cmd: "Deep Vault: Extract key concepts", id: "deep-vault-concepts", cat: "Actions" },
+      { cmd: "Deep Vault: Find research gaps", id: "deep-vault-gaps", cat: "Actions" },
+      { cmd: "Deep Vault: Auto-tag current note", id: "deep-vault-autotag", cat: "Actions" },
+      { cmd: "Deep Vault: Generate daily research digest", id: "deep-vault-daily-digest", cat: "Digest" },
+      { cmd: "Deep Vault: Search vault", id: "deep-vault-search", cat: "Search" },
+      { cmd: "Deep Vault: Open setup wizard", id: "deep-vault-setup-wizard", cat: "Setup" },
     ];
 
     const cats = [...new Set(shortcuts.map(s => s.cat))];
@@ -1067,6 +1091,8 @@ ${noteChunks.join("\n\n---\n\n")}`;
       shortcuts.filter(s => s.cat === cat).forEach(s => {
         const row = table.createEl("tr");
         row.createEl("td", { text: s.cmd, cls: "dv-hotkey-cmd" });
+        const keyText = this.getAssignedHotkey(`${this.plugin.manifest.id}:${s.id}`);
+        row.createEl("td", { text: keyText ?? "Not set", cls: keyText ? "dv-hotkey-key" : "dv-hotkey-key dv-hotkey-key-unset" });
       });
     }
 
