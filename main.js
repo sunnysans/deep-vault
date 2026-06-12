@@ -882,27 +882,49 @@ ${noteChunks.join("\n\n---\n\n")}`;
     this.panelHistoryTop = this.panelHistory.createDiv("dv-panel-history-top");
     this.panelHistoryBottom = this.panelHistory.createDiv("dv-panel-history-bottom");
   }
+  getAssignedHotkey(commandId) {
+    var _a;
+    const hotkeyManager = this.app.hotkeyManager;
+    if (!hotkeyManager)
+      return null;
+    const hotkeys = (_a = hotkeyManager.getHotkeys(commandId)) != null ? _a : hotkeyManager.getDefaultHotkeys(commandId);
+    if (!hotkeys || hotkeys.length === 0)
+      return null;
+    const modifierLabels = {
+      Mod: import_obsidian.Platform.isMacOS ? "Cmd" : "Ctrl",
+      Ctrl: "Ctrl",
+      Meta: import_obsidian.Platform.isMacOS ? "Cmd" : "Win",
+      Shift: "Shift",
+      Alt: import_obsidian.Platform.isMacOS ? "Option" : "Alt"
+    };
+    return hotkeys.map(
+      (hk) => [...hk.modifiers.map((m) => {
+        var _a2;
+        return (_a2 = modifierLabels[m]) != null ? _a2 : m;
+      }), hk.key.toUpperCase()].join(" + ")
+    ).join(", ");
+  }
   renderHotkeys() {
     const panel = this.panelHistoryTop;
     panel.empty();
     panel.createEl("p", { text: "KEYBOARD SHORTCUTS", cls: "dv-section-label" });
     panel.createEl("p", { text: "Assign hotkeys in Settings \u2192 Hotkeys \u2192 search Deep Vault", cls: "dv-hotkey-hint" });
     const shortcuts = [
-      { cmd: "Open Deep Vault panel", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Research tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Chat tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Synthesis tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Templates tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to Search tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Go to History tab", cat: "Navigation" },
-      { cmd: "Deep Vault: Summarise current note", cat: "Actions" },
-      { cmd: "Deep Vault: Generate research questions", cat: "Actions" },
-      { cmd: "Deep Vault: Extract key concepts", cat: "Actions" },
-      { cmd: "Deep Vault: Find research gaps", cat: "Actions" },
-      { cmd: "Deep Vault: Auto-tag current note", cat: "Actions" },
-      { cmd: "Deep Vault: Generate daily research digest", cat: "Digest" },
-      { cmd: "Deep Vault: Search vault", cat: "Search" },
-      { cmd: "Deep Vault: Open setup wizard", cat: "Setup" }
+      { cmd: "Open Deep Vault panel", id: "open-deep-vault", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Research tab", id: "deep-vault-tab-research", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Chat tab", id: "deep-vault-tab-chat", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Synthesis tab", id: "deep-vault-tab-synthesis", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Templates tab", id: "deep-vault-tab-templates", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to Search tab", id: "deep-vault-tab-search", cat: "Navigation" },
+      { cmd: "Deep Vault: Go to History tab", id: "deep-vault-tab-history", cat: "Navigation" },
+      { cmd: "Deep Vault: Summarise current note", id: "deep-vault-summarize", cat: "Actions" },
+      { cmd: "Deep Vault: Generate research questions", id: "deep-vault-questions", cat: "Actions" },
+      { cmd: "Deep Vault: Extract key concepts", id: "deep-vault-concepts", cat: "Actions" },
+      { cmd: "Deep Vault: Find research gaps", id: "deep-vault-gaps", cat: "Actions" },
+      { cmd: "Deep Vault: Auto-tag current note", id: "deep-vault-autotag", cat: "Actions" },
+      { cmd: "Deep Vault: Generate daily research digest", id: "deep-vault-daily-digest", cat: "Digest" },
+      { cmd: "Deep Vault: Search vault", id: "deep-vault-search", cat: "Search" },
+      { cmd: "Deep Vault: Open setup wizard", id: "deep-vault-setup-wizard", cat: "Setup" }
     ];
     const cats = [...new Set(shortcuts.map((s) => s.cat))];
     for (const cat of cats) {
@@ -911,6 +933,8 @@ ${noteChunks.join("\n\n---\n\n")}`;
       shortcuts.filter((s) => s.cat === cat).forEach((s) => {
         const row = table.createEl("tr");
         row.createEl("td", { text: s.cmd, cls: "dv-hotkey-cmd" });
+        const keyText = this.getAssignedHotkey(`${this.plugin.manifest.id}:${s.id}`);
+        row.createEl("td", { text: keyText != null ? keyText : "Not set", cls: keyText ? "dv-hotkey-key" : "dv-hotkey-key dv-hotkey-key-unset" });
       });
     }
     const wizardBtn = panel.createEl("button", { text: "\u{1F9D9} Re-run Setup Wizard", cls: "dv-btn-ghost dv-hotkey-wizard-btn" });
