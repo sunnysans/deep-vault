@@ -86,14 +86,14 @@ Tracked here for visibility. No fixed release target.
 
 ## 🔧 Tech Debt
 
-**Priority order (set 2026-06-12):** TD-01 ✅ → TD-04 → TD-08 → TD-07. TD-05 deferred — it's really a P1 community-submission item, bundle it with P1-01–04.
+**Priority order (set 2026-06-12):** TD-01 ✅ → TD-04 ✅ → TD-08 → TD-07. TD-05 deferred — it's really a P1 community-submission item, bundle it with P1-01–04.
 
 | # | Item | Risk if ignored | Done |
 |---|---|---|:---:|
 | TD-01 | All logic lives in single `src/main.ts` (2,205 lines and growing every release) | Difficult to unit-test; grows into unmaintainable monolith | `[x]` see sub-tasks below — done as v4.2.1 |
 | TD-02 | No Obsidian mock — `test/` dir doesn't exist | `npm run test` fails with no helpful output | `[x]` |
 | TD-03 | No `.github/workflows/` — CI not wired up | Broken builds can merge to `main` undetected | `[x]` |
-| TD-04 | `deploy.bat` vault path is hardcoded | Script breaks if Obsidian vault moves; must be manually edited | `[ ]` |
+| TD-04 | `deploy.bat` vault path is hardcoded | Script breaks if Obsidian vault moves; must be manually edited | `[x]` done as v4.2.2 |
 | TD-05 | `docs/screenshots/` directory doesn't exist | README has placeholder text instead of real screenshots — deferred, bundle with P1-01–04 | `[ ]` |
 | TD-06 | No `vitest.config.ts` | Obsidian mock alias must live in `package.json` — hard to scale | `[x]` |
 | TD-07 | Web search beta header may expire | `anthropic-beta: web-search-2025-03-05` — check when Anthropic promotes to stable | `[ ]` |
@@ -141,6 +141,7 @@ Move items here when done. Keep for audit trail.
 | ✅ | v4.0.5 — fix Synthesis "Browse & Select Notes" multi-select (selectSuggestion override) | 2026-06-12 |
 | ✅ | Codify versioning policy (PATCH/MINOR/MAJOR) in CLAUDE.md | 2026-06-12 |
 | ✅ | v4.2.1 — TD-01 complete: split `src/main.ts` monolith into `src/api/claude.ts`, `src/types.ts`, `src/modals.ts`, `src/settings.ts`, `src/views/DeepVaultView.ts` | 2026-06-12 |
+| ✅ | v4.2.2 — TD-04 complete: `deploy.bat` now takes vault path as a command-line argument instead of a hardcoded `VAULT_DIR` | 2026-06-12 |
 
 ---
 
@@ -154,5 +155,5 @@ Move items here when done. Keep for audit trail.
 
 ---
 
-*Last updated: 2026-06-12 — v4.2.1*
+*Last updated: 2026-06-12 — v4.2.2*
 *Related files: `NextSteps.md` (testing plan) · `TESTING.md` (QA protocol) · `PUBLISHING.md` (submission guide) · `MyDocs.md` (dev reference)*

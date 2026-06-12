@@ -1,7 +1,15 @@
 @echo off
 rem Deep Vault — Windows deploy wrapper.
 rem Delegates to scripts/deploy.js (cross-platform Node.js script).
-rem Edit VAULT_DIR below to match your local Obsidian vault path.
+rem Usage: deploy.bat "E:\Obsidian\MyVault"
 
-set VAULT_DIR=E:\Obsidian\MyVault
-node "%~dp0scripts\deploy.js" "%VAULT_DIR%"
+if "%~1"=="" (
+  echo Error: Obsidian vault path is required.
+  echo.
+  echo Usage:
+  echo   deploy.bat "E:\Obsidian\MyVault"
+  echo   npm run deploy -- "E:\Obsidian\MyVault"
+  exit /b 1
+)
+
+node "%~dp0scripts\deploy.js" "%~1"
