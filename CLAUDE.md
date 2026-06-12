@@ -156,8 +156,8 @@ When a new task needs scripting:
 - **Touch targets** must remain 44px minimum for mobile usability.
 - **Safe-area insets** must be preserved — do not remove `env(safe-area-inset-*)` CSS.
 - **The `hasSeenWizard` setting flag** controls first-launch wizard display — do not repurpose it.
-- **Web search** uses the beta header `anthropic-beta: web-search-2025-03-05` — monitor Anthropic docs for when this graduates to stable.
-- **Model strings** (`claude-sonnet-4-20250514`, `claude-haiku-4-5-20251001`) — update both `DEFAULT_MODEL` in `src/main.ts` and the settings dropdown when Anthropic deprecates a model.
+- **Web search** uses the `web_search_20250305` tool type, now stable — no `anthropic-beta` header required (removed in v4.2.4).
+- **Model strings** (`claude-sonnet-4-20250514`, `claude-haiku-4-5-20251001`) — update both `DEFAULT_MODEL` in `src/types.ts` and the settings dropdown in `src/settings.ts` when Anthropic deprecates a model.
 - **After every deploy, reload Obsidian** — `Ctrl+P` → "Reload app without saving". Changes are not live until this is done.
 - **After any change to plugin lifecycle code** (load, unload, settings), toggle enable → disable → enable in Obsidian Settings and confirm no errors appear in the console.
 - **First checkout on Linux/macOS** — run `chmod +x build.sh` before first use. The executable bit is not preserved by git on all systems.
