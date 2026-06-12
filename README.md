@@ -2,7 +2,7 @@
 
 **AI-powered research assistant for Obsidian, powered by Claude**
 
-[![Version](https://img.shields.io/badge/version-4.0.6-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
 [![CI](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml/badge.svg)](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml)
 [![Obsidian](https://img.shields.io/badge/Obsidian-0.15%2B-purple)](https://obsidian.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -215,6 +215,10 @@ deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin fo
 ---
 
 ## 📋 Changelog
+
+### v4.1.0
+- ℹ️ Added an "About" section to the More tab — plugin version, copyright, and links to GitHub and Buy Me a Coffee
+- 📄 Added missing `LICENSE` file (MIT) — was referenced by README but didn't exist in the repo
 
 ### v4.0.6
 - 🐛 Fixed inconsistent tab bar layout — "Research" and "Templates" wrapped their labels onto a second line while other tabs stayed inline; `.dv-tab` is now a column flexbox so every tab consistently shows icon above label

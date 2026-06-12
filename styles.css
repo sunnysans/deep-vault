@@ -1551,6 +1551,36 @@
   font-size: 12px;
 }
 
+/* ─── About / Credits ────────────────────────── */
+
+.dv-about {
+  text-align: center;
+  padding: 4px 0 8px;
+}
+
+.dv-about-version {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-normal);
+  margin: 0;
+}
+
+.dv-about-copyright {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 2px 0 6px;
+}
+
+.dv-about-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.dv-about-link {
+  font-size: 11px;
+}
+
 /* ═══════════════════════════════════════════════
    Deep Vault v3.1.1 — Mobile Support Styles
    ═══════════════════════════════════════════════ */
