@@ -109,12 +109,14 @@ The following test checklist **must be executed and signed off** by an engineer 
 
 | ID | Module / Feature | Step Description | Expected Output | Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **TC-01** | **Setup Wizard** | Clean install with no existing configuration. | Wizard opens automatically, accepts and validates the Claude API Key. | `[ ]` |
-| **TC-02** | **API Errors** | Input an invalid API key, then run "Summarize". | UI displays a clear, descriptive warning notice without crashing. | `[ ]` |
-| **TC-03** | **Research Card** | Open a markdown note and click "Summarize". | Renders a clean, structured 5-bullet summary inside the response area. | `[ ]` |
-| **TC-04** | **Chat Web Toggle**| Open Chat, toggle "Web Search" on, send query. | Claude responds with integrated live search citations. | `[ ]` |
-| **TC-05** | **Auto-Tagging** | Click "Auto-Tag" quick action on active note. | UI displays suggested tags with checkmarks; applying writes directly to frontmatter. | `[ ]` |
-| **TC-06** | **Daily Digest** | Select "Last 7 days" and click "Generate". | Creates a compiled overview, highlights, and action items of edited files. | `[ ]` |
-| **TC-07** | **Synthesis** | Select 2 notes, click "Compare". | Displays clear, formatted comparative analysis. | `[ ]` |
+| **TC-01** | **Setup Wizard** | Clean install with no existing configuration. | Wizard opens automatically, accepts and validates the Claude API Key. | `[x]` |
+| **TC-02** | **API Errors** | Input an invalid API key, then run "Summarize". | UI displays a clear, descriptive warning notice without crashing. | `[x]` |
+| **TC-03** | **Research Card** | Open a markdown note and click "Summarize". | Renders a clean, structured 5-bullet summary inside the response area. | `[x]` |
+| **TC-04** | **Chat Web Toggle**| Open Chat, toggle "Web Search" on, send query. | Claude responds with integrated live search citations. | `[x]` |
+| **TC-05** | **Auto-Tagging** | Click "Auto-Tag" quick action on active note. | UI displays suggested tags with checkmarks; applying writes directly to frontmatter. | `[x]` |
+| **TC-06** | **Daily Digest** | Select "Last 7 days" and click "Generate". | Creates a compiled overview, highlights, and action items of edited files. | `[x]` |
+| **TC-07** | **Synthesis** | Select 2 notes, click "Compare". | Displays clear, formatted comparative analysis. | `[x]` |
 | **TC-08** | **Mobile Touch** | Launch in touch responsive emulator. | Tab swiping left/right is fluid, tabs compress to icons on narrow widths. | `[ ]` |
-| **TC-09** | **Shortcuts** | Press `Cmd/Ctrl + P` and trigger "Deep Vault" actions. | Commands respond immediately and open the relevant panel tabs. | `[ ]` |
+| **TC-09** | **Shortcuts** | Press `Cmd/Ctrl + P` and trigger "Deep Vault" actions. | Commands respond immediately and open the relevant panel tabs. | `[x]` |
+
+> Windows desktop pass completed 2026-06-12 (v4.0.5). TC-05–TC-07 each surfaced a bug, fixed and version-bumped (4.0.4, 4.0.3, 4.0.5 respectively) before re-verification. TC-08 requires a mobile device — tracked under `MyNextSteps.md` P0-04.
