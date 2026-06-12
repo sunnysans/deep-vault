@@ -86,11 +86,11 @@ Tracked here for visibility. No fixed release target.
 
 ## 🔧 Tech Debt
 
-**Priority order (set 2026-06-12):** TD-01 → TD-04 → TD-08 → TD-07. TD-05 deferred — it's really a P1 community-submission item, bundle it with P1-01–04.
+**Priority order (set 2026-06-12):** TD-01 ✅ → TD-04 → TD-08 → TD-07. TD-05 deferred — it's really a P1 community-submission item, bundle it with P1-01–04.
 
 | # | Item | Risk if ignored | Done |
 |---|---|---|:---:|
-| TD-01 | All logic lives in single `src/main.ts` (2,205 lines and growing every release) | Difficult to unit-test; grows into unmaintainable monolith | `[~]` see sub-tasks below |
+| TD-01 | All logic lives in single `src/main.ts` (2,205 lines and growing every release) | Difficult to unit-test; grows into unmaintainable monolith | `[x]` see sub-tasks below — done as v4.2.1 |
 | TD-02 | No Obsidian mock — `test/` dir doesn't exist | `npm run test` fails with no helpful output | `[x]` |
 | TD-03 | No `.github/workflows/` — CI not wired up | Broken builds can merge to `main` undetected | `[x]` |
 | TD-04 | `deploy.bat` vault path is hardcoded | Script breaks if Obsidian vault moves; must be manually edited | `[ ]` |
@@ -108,8 +108,8 @@ Each step is its own `refactor/*` branch, pure refactor (no behavior change), `n
 | TD-01a | Claude API client (`callClaude` + request/response handling) | `src/api/claude.ts` | `[x]` |
 | TD-01b | Modal classes (`SetupWizardModal`, `NoteSuggestModal`, `TemplateEditorModal`) + shared types/constants | `src/modals.ts`, `src/types.ts` | `[x]` |
 | TD-01c | Settings tab + settings interface/defaults | `src/settings.ts` | `[x]` |
-| TD-01d | `ItemView` panels/renderers (largest piece — do last) | `src/views/DeepVaultView.ts` | `[ ]` |
-| TD-01e | `src/main.ts` left as thin `Plugin` class (lifecycle + command registration) | — | `[ ]` |
+| TD-01d | `ItemView` panels/renderers (largest piece — do last) | `src/views/DeepVaultView.ts` | `[x]` |
+| TD-01e | `src/main.ts` left as thin `Plugin` class (lifecycle + command registration) | — | `[x]` (achieved as part of TD-01d — main.ts is now 122 lines) |
 
 ---
 
@@ -140,6 +140,7 @@ Move items here when done. Keep for audit trail.
 | ✅ | v4.0.4 — fix "Could not find the active note" on Apply Tags (getCurrentFile helper) | 2026-06-12 |
 | ✅ | v4.0.5 — fix Synthesis "Browse & Select Notes" multi-select (selectSuggestion override) | 2026-06-12 |
 | ✅ | Codify versioning policy (PATCH/MINOR/MAJOR) in CLAUDE.md | 2026-06-12 |
+| ✅ | v4.2.1 — TD-01 complete: split `src/main.ts` monolith into `src/api/claude.ts`, `src/types.ts`, `src/modals.ts`, `src/settings.ts`, `src/views/DeepVaultView.ts` | 2026-06-12 |
 
 ---
 
@@ -153,5 +154,5 @@ Move items here when done. Keep for audit trail.
 
 ---
 
-*Last updated: 2026-06-12 — v4.0.5*
+*Last updated: 2026-06-12 — v4.2.1*
 *Related files: `NextSteps.md` (testing plan) · `TESTING.md` (QA protocol) · `PUBLISHING.md` (submission guide) · `MyDocs.md` (dev reference)*

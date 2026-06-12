@@ -28,49 +28,7 @@ __export(main_exports, {
   default: () => DeepVaultPlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian4 = require("obsidian");
-
-// src/utils/helpers.ts
-function formatTime(date) {
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
-function formatDate(date) {
-  return date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
-}
-
-// src/api/claude.ts
-var import_obsidian = require("obsidian");
-var SYSTEM_PROMPT = "You are Deep Vault, an expert research assistant embedded in Obsidian. Help researchers analyze notes, extract insights, identify knowledge gaps, find connections, and synthesize ideas. Be concise, structured, and use markdown formatting. Use bullet points and headers to organize responses clearly.";
-async function callClaude(settings, messages, useWeb) {
-  var _a, _b;
-  const body = {
-    model: settings.model,
-    max_tokens: settings.maxTokens,
-    system: SYSTEM_PROMPT,
-    messages
-  };
-  if (useWeb && settings.enableWebSearch) {
-    body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-  }
-  const response = await (0, import_obsidian.requestUrl)({
-    url: "https://api.anthropic.com/v1/messages",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": settings.apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-beta": "web-search-2025-03-05"
-    },
-    body: JSON.stringify(body),
-    throw: false
-  });
-  if (response.status !== 200) {
-    const err = response.json;
-    throw new Error((_b = (_a = err == null ? void 0 : err.error) == null ? void 0 : _a.message) != null ? _b : `API error ${response.status}`);
-  }
-  const data = response.json;
-  return data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n") || "No response received.";
-}
+var import_obsidian5 = require("obsidian");
 
 // src/types.ts
 var DEEP_VAULT_VIEW = "deep-vault-view";
@@ -136,8 +94,8 @@ var DEFAULT_SETTINGS = {
 };
 
 // src/modals.ts
-var import_obsidian2 = require("obsidian");
-var NoteSuggestModal = class extends import_obsidian2.SuggestModal {
+var import_obsidian = require("obsidian");
+var NoteSuggestModal = class extends import_obsidian.SuggestModal {
   constructor(app, files, onSelect) {
     super(app);
     this.selected = [];
@@ -161,10 +119,10 @@ var NoteSuggestModal = class extends import_obsidian2.SuggestModal {
   onChooseSuggestion(file, _evt) {
     if (!this.selected.includes(file)) {
       this.selected.push(file);
-      new import_obsidian2.Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
+      new import_obsidian.Notice(`Added: ${file.basename} (${this.selected.length} selected)`);
     } else {
       this.selected = this.selected.filter((f) => f !== file);
-      new import_obsidian2.Notice(`Removed: ${file.basename}`);
+      new import_obsidian.Notice(`Removed: ${file.basename}`);
     }
     this.onSelect(this.selected);
   }
@@ -173,7 +131,7 @@ var NoteSuggestModal = class extends import_obsidian2.SuggestModal {
     this.inputEl.dispatchEvent(new Event("input"));
   }
 };
-var TemplateEditorModal = class extends import_obsidian2.Modal {
+var TemplateEditorModal = class extends import_obsidian.Modal {
   constructor(app, existing, onSave) {
     super(app);
     this.existing = existing;
@@ -232,11 +190,11 @@ var TemplateEditorModal = class extends import_obsidian2.Modal {
       const name = nameInput.value.trim();
       const prompt = promptInput.value.trim();
       if (!name) {
-        new import_obsidian2.Notice("Please enter a template name.");
+        new import_obsidian.Notice("Please enter a template name.");
         return;
       }
       if (!prompt) {
-        new import_obsidian2.Notice("Please enter a prompt.");
+        new import_obsidian.Notice("Please enter a prompt.");
         return;
       }
       const tpl = {
@@ -255,7 +213,7 @@ var TemplateEditorModal = class extends import_obsidian2.Modal {
     this.contentEl.empty();
   }
 };
-var SetupWizardModal = class extends import_obsidian2.Modal {
+var SetupWizardModal = class extends import_obsidian.Modal {
   constructor(app, plugin) {
     super(app);
     this.step = 0;
@@ -300,7 +258,7 @@ var SetupWizardModal = class extends import_obsidian2.Modal {
           btn.onclick = async () => {
             const key = keyInput.value.trim();
             if (!key.startsWith("sk-ant-") && key.length > 0) {
-              new import_obsidian2.Notice("That doesn't look like a valid Anthropic API key.");
+              new import_obsidian.Notice("That doesn't look like a valid Anthropic API key.");
               return;
             }
             plugin.settings.apiKey = key;
@@ -446,8 +404,8 @@ var SetupWizardModal = class extends import_obsidian2.Modal {
 };
 
 // src/settings.ts
-var import_obsidian3 = require("obsidian");
-var DeepVaultSettingTab = class extends import_obsidian3.PluginSettingTab {
+var import_obsidian2 = require("obsidian");
+var DeepVaultSettingTab = class extends import_obsidian2.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -456,23 +414,23 @@ var DeepVaultSettingTab = class extends import_obsidian3.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "\u{1F50D} Deep Vault Settings" });
-    new import_obsidian3.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Anthropic API Key").setDesc("Get your key from console.anthropic.com \u2014 stored locally, never shared.").addText((text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
       this.plugin.settings.apiKey = value.trim();
       await this.plugin.saveSettings();
     }));
-    new import_obsidian3.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Claude Model").setDesc("Sonnet recommended for research. Haiku is faster and cheaper.").addDropdown((drop) => drop.addOption("claude-sonnet-4-20250514", "Claude Sonnet 4 (Recommended)").addOption("claude-haiku-4-5-20251001", "Claude Haiku 4.5 (Faster)").setValue(this.plugin.settings.model).onChange(async (value) => {
       this.plugin.settings.model = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian3.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Max Response Length").setDesc("Higher = longer, more detailed responses.").addSlider((slider) => slider.setLimits(500, 4e3, 250).setValue(this.plugin.settings.maxTokens).setDynamicTooltip().onChange(async (value) => {
       this.plugin.settings.maxTokens = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian3.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Enable Web Search").setDesc("Allow Claude to search the web when the \u{1F310} Web button is active in Chat.").addToggle((toggle) => toggle.setValue(this.plugin.settings.enableWebSearch).onChange(async (value) => {
       this.plugin.settings.enableWebSearch = value;
       await this.plugin.saveSettings();
     }));
-    new import_obsidian3.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
+    new import_obsidian2.Setting(containerEl).setName("Export Folder").setDesc("Folder in your vault where exported notes will be saved.").addText((text) => text.setPlaceholder("Deep Vault Exports").setValue(this.plugin.settings.exportFolder).onChange(async (value) => {
       this.plugin.settings.exportFolder = value || "Deep Vault Exports";
       await this.plugin.saveSettings();
     }));
@@ -494,13 +452,58 @@ var DeepVaultSettingTab = class extends import_obsidian3.PluginSettingTab {
     resetBtn.onclick = async () => {
       this.plugin.settings.templates = DEFAULT_TEMPLATES;
       await this.plugin.saveSettings();
-      new import_obsidian3.Notice("Templates reset to defaults.");
+      new import_obsidian2.Notice("Templates reset to defaults.");
       this.display();
     };
   }
 };
 
-// src/main.ts
+// src/views/DeepVaultView.ts
+var import_obsidian4 = require("obsidian");
+
+// src/utils/helpers.ts
+function formatTime(date) {
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+function formatDate(date) {
+  return date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+}
+
+// src/api/claude.ts
+var import_obsidian3 = require("obsidian");
+var SYSTEM_PROMPT = "You are Deep Vault, an expert research assistant embedded in Obsidian. Help researchers analyze notes, extract insights, identify knowledge gaps, find connections, and synthesize ideas. Be concise, structured, and use markdown formatting. Use bullet points and headers to organize responses clearly.";
+async function callClaude(settings, messages, useWeb) {
+  var _a, _b;
+  const body = {
+    model: settings.model,
+    max_tokens: settings.maxTokens,
+    system: SYSTEM_PROMPT,
+    messages
+  };
+  if (useWeb && settings.enableWebSearch) {
+    body.tools = [{ type: "web_search_20250305", name: "web_search" }];
+  }
+  const response = await (0, import_obsidian3.requestUrl)({
+    url: "https://api.anthropic.com/v1/messages",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": settings.apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-beta": "web-search-2025-03-05"
+    },
+    body: JSON.stringify(body),
+    throw: false
+  });
+  if (response.status !== 200) {
+    const err = response.json;
+    throw new Error((_b = (_a = err == null ? void 0 : err.error) == null ? void 0 : _a.message) != null ? _b : `API error ${response.status}`);
+  }
+  const data = response.json;
+  return data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n") || "No response received.";
+}
+
+// src/views/DeepVaultView.ts
 function renderMarkdown(container, text) {
   container.empty();
   const lines = text.split("\n");
@@ -1820,7 +1823,9 @@ ${result}
   async onClose() {
   }
 };
-var DeepVaultPlugin = class extends import_obsidian4.Plugin {
+
+// src/main.ts
+var DeepVaultPlugin = class extends import_obsidian5.Plugin {
   async onload() {
     await this.loadSettings();
     this.registerView(DEEP_VAULT_VIEW, (leaf) => new DeepVaultView(leaf, this));
