@@ -1581,6 +1581,14 @@
   font-size: 11px;
 }
 
+/* ─── History Panel Sections ─────────────────── */
+
+.dv-panel-history-bottom {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
 /* ═══════════════════════════════════════════════
    Deep Vault v3.1.1 — Mobile Support Styles
    ═══════════════════════════════════════════════ */

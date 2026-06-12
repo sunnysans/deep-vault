@@ -2,7 +2,7 @@
 
 **AI-powered research assistant for Obsidian, powered by Claude**
 
-[![Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![Version](https://img.shields.io/badge/version-4.1.1-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
 [![CI](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml/badge.svg)](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml)
 [![Obsidian](https://img.shields.io/badge/Obsidian-0.15%2B-purple)](https://obsidian.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -215,6 +215,9 @@ deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin fo
 ---
 
 ## 📋 Changelog
+
+### v4.1.1
+- 🐛 Fixed the new "About" section (and the Keyboard Shortcuts list) not appearing in the More tab — `renderHistory()` was clearing the shared panel right after `renderHotkeys()` rendered into it; the More tab now uses separate top/bottom containers so both sections coexist
 
 ### v4.1.0
 - ℹ️ Added an "About" section to the More tab — plugin version, copyright, and links to GitHub and Buy Me a Coffee
