@@ -1,9 +1,9 @@
 # Deep Vault — Manual Test Run
 
-**Version under test:** 4.0.0
-**Date:** _______________
-**Tester:** _______________
-**Platform (primary):** _______________
+**Version under test:** 4.0.5
+**Date:** 2026-06-12
+**Tester:** Sunny Santhosh
+**Platform (primary):** Windows Desktop
 
 ---
 
@@ -22,22 +22,22 @@ Before running any test case:
 
 | ID | Test Case | Result | Notes |
 |:---|:---|:---:|:---|
-| TC-01 | Setup Wizard | `[ ] Pass  [ ] Fail` | |
-| TC-02 | API Error Handling | `[ ] Pass  [ ] Fail` | |
-| TC-03 | Research — Summarise | `[ ] Pass  [ ] Fail` | |
-| TC-04 | Chat — Web Search Toggle | `[ ] Pass  [ ] Fail` | |
-| TC-05 | Auto-Tag | `[ ] Pass  [ ] Fail` | |
-| TC-06 | Daily Digest | `[ ] Pass  [ ] Fail` | |
-| TC-07 | Synthesis — Compare | `[ ] Pass  [ ] Fail` | |
-| TC-08 | Mobile Touch & Layout | `[ ] Pass  [ ] Fail` | |
-| TC-09 | Keyboard Shortcuts | `[ ] Pass  [ ] Fail` | |
-| P0-05 | Empty Vault | `[ ] Pass  [ ] Fail` | |
-| P0-06 | No API Key Set | `[ ] Pass  [ ] Fail` | |
-| P0-07 | Invalid API Key | `[ ] Pass  [ ] Fail` | |
-| P0-03 | Linux Desktop | `[ ] Pass  [ ] Fail` | |
-| P0-04 | Obsidian Mobile | `[ ] Pass  [ ] Fail` | |
+| TC-01 | Setup Wizard | `[x] Pass  [ ] Fail` | |
+| TC-02 | API Error Handling | `[x] Pass  [ ] Fail` | |
+| TC-03 | Research — Summarise | `[x] Pass  [ ] Fail` | |
+| TC-04 | Chat — Web Search Toggle | `[x] Pass  [ ] Fail` | |
+| TC-05 | Auto-Tag | `[x] Pass  [ ] Fail` | Found "Could not find the active note" on Apply — fixed in v4.0.4 |
+| TC-06 | Daily Digest | `[x] Pass  [ ] Fail` | Found response area overlapping Daily Digest — fixed in v4.0.3 |
+| TC-07 | Synthesis — Compare | `[x] Pass  [ ] Fail` | Found "Browse & Select Notes" only allowed 1 note — fixed in v4.0.5 |
+| TC-08 | Mobile Touch & Layout | `[ ] Pass  [ ] Fail` | Pending — needs mobile device |
+| TC-09 | Keyboard Shortcuts | `[x] Pass  [ ] Fail` | |
+| P0-05 | Empty Vault | `[ ] Pass  [ ] Fail` | Pending |
+| P0-06 | No API Key Set | `[ ] Pass  [ ] Fail` | Pending |
+| P0-07 | Invalid API Key | `[ ] Pass  [ ] Fail` | Pending |
+| P0-03 | Linux Desktop | `[ ] Pass  [ ] Fail` | Pending |
+| P0-04 | Obsidian Mobile | `[ ] Pass  [ ] Fail` | Pending |
 
-**Overall sign-off:** `[ ] Ready to release` &nbsp; `[ ] Blocked — see failures below`
+**Overall sign-off:** `[ ] Ready to release` &nbsp; `[x] Blocked — see remaining pending platform/edge-case tests below`
 
 ---
 

@@ -16,17 +16,17 @@
 
 ---
 
-## 🔴 P0 — Release Blockers (v4.0.0)
+## 🔴 P0 — Release Blockers (v4.0.x)
 
-These block the GitHub Release v4.0.0 from being published. Do not push the tag until all are checked.
-Release is now automated — push tag `v4.0.0` and `.github/workflows/release.yml` handles the rest.
+These block the GitHub Release from being published. Do not push the tag until all are checked.
+Release is now automated — push tag `v4.0.x` (current: `4.0.5`) and `.github/workflows/release.yml` handles the rest.
 
 | # | Item | Detail | Done |
 |---|---|---|:---:|
-| P0-01 | Publish GitHub Release v4.0.0 | Push tag `v4.0.0` — release workflow auto-builds and attaches assets | `[ ]` |
-| P0-02 | Execute manual regression (TC-01 → TC-09) | Full sign-off per `TESTING.md` Section 5 | `[ ]` |
+| P0-01 | Publish GitHub Release v4.0.5 | Push tag `v4.0.5` — release workflow auto-builds and attaches assets | `[ ]` |
+| P0-02 | Execute manual regression (TC-01 → TC-09) | Windows desktop pass complete 2026-06-12 — TC-01–07, TC-09 pass (3 bugs found & fixed as v4.0.3/4.0.4/4.0.5). TC-08 (mobile) deferred to P0-04 | `[~]` |
 | P0-03 | Test on Linux (Obsidian desktop) | Verified via `build.sh` deploy | `[ ]` |
-| P0-04 | Test on Obsidian Mobile (iOS or Android) | Swipe, touch targets, safe-area spacing | `[ ]` |
+| P0-04 | Test on Obsidian Mobile (iOS or Android) | Swipe, touch targets, safe-area spacing — also covers TC-08 | `[ ]` |
 | P0-05 | Test with empty vault (no notes) | All 6 quick actions + search show graceful empty states | `[ ]` |
 | P0-06 | Test with no API key set | Every action shows a clear, non-crashing warning | `[ ]` |
 | P0-07 | Test with invalid API key | Error surfaces gracefully without unhandled rejections | `[ ]` |
@@ -120,6 +120,12 @@ Move items here when done. Keep for audit trail.
 | ✅ | Create `.github/workflows/release.yml` — automated release on tag push | May 2026 |
 | ✅ | Create `.github/pull_request_template.md` — PR release gate checklist | May 2026 |
 | ✅ | Bump version to 4.0.0 — major version for infrastructure overhaul | May 2026 |
+| ✅ | v4.0.1 — fix "Please open a note first" (getCurrentNote leaves-API lookup) | 2026-06-12 |
+| ✅ | v4.0.2 — fix "Failed to fetch" (requestUrl replaces fetch) | 2026-06-12 |
+| ✅ | v4.0.3 — fix Daily Digest overlap (removed flex:1 from .dv-response-wrap) | 2026-06-12 |
+| ✅ | v4.0.4 — fix "Could not find the active note" on Apply Tags (getCurrentFile helper) | 2026-06-12 |
+| ✅ | v4.0.5 — fix Synthesis "Browse & Select Notes" multi-select (selectSuggestion override) | 2026-06-12 |
+| ✅ | Codify versioning policy (PATCH/MINOR/MAJOR) in CLAUDE.md | 2026-06-12 |
 
 ---
 
