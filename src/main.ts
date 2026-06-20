@@ -102,8 +102,6 @@ export default class DeepVaultPlugin extends Plugin {
         setTimeout(() => new SetupWizardModal(this.app, this).open(), 800);
       }
     });
-
-    console.log("Deep Vault v3.1.2 loaded ✅");
   }
 
   async activateView() {

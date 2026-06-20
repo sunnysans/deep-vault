@@ -2,7 +2,7 @@
 
 **AI-powered research assistant for Obsidian, powered by Claude**
 
-[![Version](https://img.shields.io/badge/version-4.2.4-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
+[![Version](https://img.shields.io/badge/version-4.2.5-blue)](https://github.com/sunnys-santhosh/deep-vault/releases)
 [![CI](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml/badge.svg)](https://github.com/sunnysans/deep-vault/actions/workflows/test.yml)
 [![Obsidian](https://img.shields.io/badge/Obsidian-0.15%2B-purple)](https://obsidian.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -215,6 +215,9 @@ deploy.bat   ← copies main.js, manifest.json, styles.css to Obsidian plugin fo
 ---
 
 ## 📋 Changelog
+
+### v4.2.5
+- 🔧 Removed the stray `console.log("Deep Vault v3.1.2 loaded ✅")` debug statement from `onload()` — also fixes the version string having gone stale since v3.1.2
 
 ### v4.2.4
 - 🔧 Removed the `anthropic-beta: web-search-2025-03-05` header from API requests — Anthropic has promoted the `web_search_20250305` tool to stable, the beta header is no longer required
