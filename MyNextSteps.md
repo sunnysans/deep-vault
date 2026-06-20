@@ -19,11 +19,11 @@
 ## 🔴 P0 — Release Blockers (v4.2.x)
 
 These block the GitHub Release from being published. Do not push the tag until all are checked.
-Release is now automated — push tag `v4.2.x` (current: `4.2.4`) and `.github/workflows/release.yml` handles the rest.
+Release is now automated — push tag `v4.2.x` (current: `4.2.5`) and `.github/workflows/release.yml` handles the rest.
 
 | # | Item | Detail | Done |
 |---|---|---|:---:|
-| P0-01 | Publish GitHub Release v4.2.4 | Push tag `v4.2.4` — release workflow auto-builds and attaches assets | `[ ]` |
+| P0-01 | Publish GitHub Release v4.2.5 | Push tag `v4.2.5` — release workflow auto-builds and attaches assets | `[ ]` |
 | P0-02 | Execute manual regression (TC-01 → TC-09) | Windows desktop pass complete 2026-06-12 — TC-01–07, TC-09 pass (3 bugs found & fixed as v4.0.3/4.0.4/4.0.5). TC-08 (mobile) deferred to P0-04 | `[~]` |
 | P0-03 | Test on Linux (Obsidian desktop) | Verified via `build.sh` deploy | `[ ]` |
 | P0-04 | Test on Obsidian Mobile (iOS or Android) | Swipe, touch targets, safe-area spacing — also covers TC-08 | `[ ]` |
@@ -46,7 +46,7 @@ The Obsidian team will reject the PR without these. Complete after P0.
 | P1-05 | Implement Vitest unit tests (Phase 1) | Extract helpers, create `test/`, write `helpers.test.ts` — see `NextSteps.md` Phase 1 | `[x]` |
 | P1-06 | Create GitHub Actions CI workflow | `.github/workflows/test.yml` — spec in `TESTING.md` Section 3 | `[x]` |
 | P1-07 | Add CI badge to README | After first green run on `dev` branch | `[x]` |
-| P1-08 | Audit for `console.log` in production code | Remove all debug statements from `src/main.ts` | `[ ]` |
+| P1-08 | Audit for `console.log` in production code | Removed stray `console.log` from `onload()` | `[x]` done as v4.2.5 |
 | P1-09 | Verify plugin loads/unloads cleanly | Toggle enable → disable → enable in Obsidian Settings, no errors | `[ ]` |
 | P1-10 | Submit `community-plugins.json` PR | Fork `obsidian-releases`, add entry, open PR — see `PUBLISHING.md` | `[ ]` |
 
@@ -146,6 +146,7 @@ Move items here when done. Keep for audit trail.
 | ✅ | v4.2.2 — TD-04 complete: `deploy.bat` now takes vault path as a command-line argument instead of a hardcoded `VAULT_DIR` | 2026-06-12 |
 | ✅ | v4.2.3 — TD-08 complete: bumped `esbuild` to `^0.25.0` and `vitest` to `^3.0.0`, fixing GHSA-67mh-4wv8-2f99 | 2026-06-12 |
 | ✅ | v4.2.4 — TD-07 complete: removed stale `anthropic-beta: web-search-2025-03-05` header (`web_search_20250305` is now stable) | 2026-06-12 |
+| ✅ | v4.2.5 — P1-08 complete: removed stray `console.log` debug statement from `onload()` | 2026-06-12 |
 
 ---
 
@@ -159,5 +160,5 @@ Move items here when done. Keep for audit trail.
 
 ---
 
-*Last updated: 2026-06-12 — v4.2.4*
+*Last updated: 2026-06-12 — v4.2.5*
 *Related files: `NextSteps.md` (testing plan) · `TESTING.md` (QA protocol) · `PUBLISHING.md` (submission guide) · `MyDocs.md` (dev reference)*
