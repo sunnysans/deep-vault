@@ -74,13 +74,15 @@ Tracked here for visibility. No fixed release target.
 
 | # | Feature | Why | Notes |
 |---|---|---|---|
-| P3-01 | Vault-wide topic graph | Visualise connections between notes | Requires a graph rendering lib (e.g. Sigma.js or D3) |
+| P3-01 | Vault-wide topic graph | Visualise connections between notes; also the key Zettelkasten gap — true value comes from traversing the link graph, not just full-text search | Requires a graph rendering lib (e.g. Sigma.js or D3) |
 | P3-02 | Research streaks / usage stats | Gamify daily research habits | Store per-day action counts in plugin data |
 | P3-03 | Collaborative vault templates | Share prompt templates across a team | Needs import/export format + hosted or vault-synced storage |
 | P3-04 | Playwright headless integration (Tier 2) | Automate TC-03 → TC-09 | See `NextSteps.md` Phase 4 — implement post-publish |
 | P3-05 | Product Hunt launch | Wider discovery | After Reddit/Discord traction and a few GitHub stars |
 | P3-06 | Claude Files API integration | Attach PDFs and images as note context | Beta feature — monitor Anthropic API changelog |
 | P3-07 | Plugin settings import/export | Backup and share configuration | JSON export of all settings + templates |
+| P3-08 | Audit quick actions against short atomic notes | Zettelkasten workflows rely on one-idea-per-note files much shorter than typical research notes — verify summarize/concepts/gaps/connections actions degrade gracefully | Relates to `P2-03` (r/Zettelkasten promotion) |
+| P3-09 | Audit AI actions for silent link/filename mutation | Zettelkasten users manually curate `[[links]]` and permanent note IDs — any feature that auto-inserts links or renames/restructures notes would violate the method's intent and must surface suggestions for user approval instead | Surfaced during Zettelkasten Method discussion, 2026-06-21 |
 
 ---
 
