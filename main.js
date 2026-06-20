@@ -1873,7 +1873,6 @@ var DeepVaultPlugin = class extends import_obsidian5.Plugin {
         setTimeout(() => new SetupWizardModal(this.app, this).open(), 800);
       }
     });
-    console.log("Deep Vault v3.1.2 loaded \u2705");
   }
   async activateView() {
     const { workspace } = this.app;
